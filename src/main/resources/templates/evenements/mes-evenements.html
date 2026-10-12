@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="fr-CA" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout}">
+<head><title>Mes événements</title></head>
+<body>
+<div layout:fragment="content">
+
+    <header class="page-head">
+        <div class="page-head__text">
+            <span class="eyebrow">Espace personnel</span>
+            <h1 class="title">Mes événements</h1>
+            <p class="lede">Vos inscriptions à venir et l'historique des événements auxquels vous avez participé.</p>
+        </div>
+        <a class="btn btn--secondary" th:href="@{/evenements}"><i class="ph-bold ph-calendar-dots"></i>Parcourir les événements</a>
+    </header>
+
+    <!-- À venir -->
+    <section class="section" aria-labelledby="titre-avenir">
+        <div class="section__head">
+            <h2 class="section-title" id="titre-avenir">À venir <span class="count" th:text="${mes.aVenir.size()}">2</span></h2>
+        </div>
+
+        <div class="rows" th:unless="${mes.aVenir.isEmpty()}">
+            <div class="row" th:each="i : ${mes.aVenir}" th:with="e=${i.evenement}" th:classappend="${e.annule} ? 'is-cancelled'">
+                <div class="row__thumb"><img th:src="@{${e.imageUrl}}" alt="" loading="lazy"></div>
+                <div>
+                    <a class="row__title" th:href="@{/evenements/{id}(id=${e.id})}" th:text="${e.titre}">Titre</a>
+                    <div class="row__meta">
+                        <span><i class="ph-bold ph-calendar-blank"></i><span th:text="${#temporals.format(e.dateDebut, 'EEE d MMMM · HH''h''mm')}">date</span></span>
+                        <span><i class="ph-bold ph-map-pin"></i><span th:text="${e.lieu.nom}">lieu</span></span>
+                        <span><i class="ph-bold ph-users-three"></i><span th:text="${e.club.nom}">club</span></span>
+                    </div>
+                    <div class="row__badges">
+                        <span th:if="${e.annule}" class="badge badge--rouge"><i class="ph-bold ph-prohibit"></i>Annulé</span>
+                        <th:block th:unless="${e.annule}"><th:block th:replace="~{fragments/ui :: inscription(${i})}"></th:block></th:block>
+                    </div>
+                </div>
+                <div class="actions">
+                    <a class="btn btn--secondary btn--sm" th:href="@{/evenements/{id}(id=${e.id})}">Voir le détail</a>
+                    <form th:if="${e.ouvert}" class="inline-form" th:action="@{/evenements/{id}/desinscription(id=${e.id})}" method="post"
+                          data-confirm-title="Se désinscrire ?"
+                          th:attr="data-confirm=|Voulez-vous vraiment vous désinscrire de « ${e.titre} » ?|"
+                          data-confirm-ok="Me désinscrire">
+                        <input type="hidden" name="origine" value="mes-evenements">
+                        <button class="btn btn--ghost btn--sm" type="submit"><i class="ph-bold ph-minus-circle"></i>Se désinscrire</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div class="empty" th:if="${mes.aVenir.isEmpty()}">
+            <i class="ph-bold ph-ticket"></i>
+            <h3>Aucune inscription à venir</h3>
+            <p>Parcourez les événements de la session et inscrivez-vous en un clic depuis la page de détail.</p>
+            <a class="btn btn--primary" th:href="@{/evenements}">Voir les événements à venir</a>
+        </div>
+    </section>
+
+    <!-- Passés -->
+    <section class="section" aria-labelledby="titre-passes">
+        <div class="section__head">
+            <h2 class="section-title" id="titre-passes">Passés <span class="count" th:text="${mes.passes.size()}">3</span></h2>
+        </div>
+
+        <div class="rows" th:unless="${mes.passes.isEmpty()}">
+            <div class="row" th:each="i : ${mes.passes}" th:with="e=${i.evenement}" th:classappend="${e.annule} ? 'is-cancelled'">
+                <div class="row__thumb"><img th:src="@{${e.imageUrl}}" alt="" loading="lazy"></div>
+                <div>
+                    <a class="row__title" th:href="@{/evenements/{id}(id=${e.id})}" th:text="${e.titre}">Titre</a>
+                    <div class="row__meta">
+                        <span><i class="ph-bold ph-calendar-blank"></i><span th:text="${#temporals.format(e.dateDebut, 'd MMMM yyyy')}">date</span></span>
+                        <span><i class="ph-bold ph-users-three"></i><span th:text="${e.club.nom}">club</span></span>
+                    </div>
+                    <div class="row__badges">
+                        <span th:if="${e.annule}" class="badge badge--rouge"><i class="ph-bold ph-prohibit"></i>Annulé</span>
+                        <th:block th:unless="${e.annule}">
+                            <span th:if="${mes.avisSoumis(e.id)}" class="badge badge--vert"><i class="ph-bold ph-star"></i>Avis soumis</span>
+                            <span th:if="${!mes.avisSoumis(e.id) and i.confirmee}" class="badge badge--jaune"><i class="ph-bold ph-pencil-simple"></i>Avis à donner</span>
+                            <span th:if="${!i.confirmee}" class="badge badge--gris"><i class="ph-bold ph-hourglass-medium"></i>Resté(e) en liste d'attente</span>
+                        </th:block>
+                    </div>
+                </div>
+                <div class="actions">
+                    <a class="btn btn--secondary btn--sm" th:href="@{/evenements/{id}(id=${e.id})}">Voir le détail</a>
+                    <a th:if="${mes.peutLaisserAvis(i)}" class="btn btn--primary btn--sm" th:href="@{/evenements/{id}/avis(id=${e.id})}">
+                        <i class="ph-bold ph-star"></i>Laisser un avis</a>
+                </div>
+            </div>
+        </div>
+
+        <div class="empty" th:if="${mes.passes.isEmpty()}">
+            <i class="ph-bold ph-clock-counter-clockwise"></i>
+            <h3>Pas encore d'historique</h3>
+            <p>Les événements auxquels vous avez participé apparaîtront ici, et vous pourrez y laisser un avis.</p>
+        </div>
+    </section>
+</div>
+</body>
+</html>

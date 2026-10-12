@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html lang="fr-CA" xmlns:th="http://www.thymeleaf.org">
+<body>
+<!-- Onglets de l'espace administrateur -->
+<nav th:fragment="onglets(actif)" class="tabs" aria-label="Sections de l'administration">
+    <a class="tab" th:href="@{/admin}" th:classappend="${actif == 'tableau'} ? 'is-active'"
+       th:attr="aria-current=${actif == 'tableau'} ? 'page' : null"><i class="ph-bold ph-chart-bar"></i>Tableau de bord</a>
+    <a class="tab" th:href="@{/admin/utilisateurs}" th:classappend="${actif == 'utilisateurs'} ? 'is-active'"
+       th:attr="aria-current=${actif == 'utilisateurs'} ? 'page' : null"><i class="ph-bold ph-users"></i>Utilisateurs</a>
+    <a class="tab" th:href="@{/admin/clubs}" th:classappend="${actif == 'clubs'} ? 'is-active'"
+       th:attr="aria-current=${actif == 'clubs'} ? 'page' : null"><i class="ph-bold ph-users-three"></i>Clubs</a>
+    <a class="tab" th:href="@{/admin/referentiels}" th:classappend="${actif == 'referentiels'} ? 'is-active'"
+       th:attr="aria-current=${actif == 'referentiels'} ? 'page' : null"><i class="ph-bold ph-tag"></i>Catégories et lieux</a>
+</nav>
+</body>
+</html>

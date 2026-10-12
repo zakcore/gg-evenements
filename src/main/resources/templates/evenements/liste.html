@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="fr-CA" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout}">
+<head><title>Événements à venir</title></head>
+<body>
+<div layout:fragment="content">
+
+    <header class="page-head">
+        <div class="page-head__text">
+            <span class="eyebrow">Session d'automne 2026</span>
+            <h1 class="title">Événements à venir</h1>
+            <p class="lede">Soirées, tournois, ateliers et sorties organisés par les clubs du cégep.
+                Ouvrez un événement pour voir les détails et vous inscrire.</p>
+        </div>
+    </header>
+
+    <form class="toolbar" th:action="@{/evenements}" method="get" th:object="${criteres}" role="search">
+        <div class="field">
+            <label class="label" for="categorie">Catégorie</label>
+            <select class="select" id="categorie" th:field="*{categorie}" data-autosubmit>
+                <option value="">Toutes les catégories</option>
+                <option th:each="c : ${categories}" th:value="${c.id}" th:text="${c.nom}">Sport</option>
+            </select>
+        </div>
+        <div class="field">
+            <label class="label" for="club">Club organisateur</label>
+            <select class="select" id="club" th:field="*{club}" data-autosubmit>
+                <option value="">Tous les clubs</option>
+                <option th:each="c : ${clubs}" th:value="${c.id}" th:text="${c.nom}">Club</option>
+            </select>
+        </div>
+        <div class="field">
+            <label class="label" for="tri">Trier par</label>
+            <select class="select" id="tri" th:field="*{tri}" data-autosubmit>
+                <option value="date">Date de début</option>
+                <option value="titre">Titre (A à Z)</option>
+                <option value="places">Places restantes (croissant)</option>
+            </select>
+        </div>
+        <noscript><button class="btn btn--primary" type="submit">Appliquer</button></noscript>
+    </form>
+
+    <div class="result-meta">
+        <span>
+            <strong class="mono" th:text="${page.totalElements}">12</strong>
+            <span th:text="${page.totalElements == 1} ? 'événement à venir' : 'événements à venir'">événements à venir</span>
+            <th:block th:if="${page.totalPages > 1}">
+                · page <span th:text="${page.number + 1}">1</span> sur <span th:text="${page.totalPages}">2</span>
+            </th:block>
+        </span>
+        <a th:if="${criteres.categorie != null or criteres.club != null}" th:href="@{/evenements}" class="btn btn--ghost btn--sm">
+            <i class="ph-bold ph-x"></i>Retirer les filtres
+        </a>
+    </div>
+
+    <div class="grid" th:unless="${page.empty}">
+        <th:block th:each="e, it : ${page.content}"><article th:replace="~{fragments/ui :: carte(${e}, ${it.index})}"></article></th:block>
+    </div>
+
+    <div class="empty" th:if="${page.empty}">
+        <i class="ph-bold ph-calendar-x"></i>
+        <h3>Aucun événement ne correspond</h3>
+        <p>Essayez une autre catégorie ou un autre club, ou revenez bientôt : les clubs ajoutent des événements chaque semaine.</p>
+        <a class="btn btn--secondary" th:href="@{/evenements}">Voir tous les événements</a>
+    </div>
+
+    <nav th:replace="~{fragments/ui :: pagination(${page})}"></nav>
+</div>
+</body>
+</html>

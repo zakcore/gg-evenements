@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="fr-CA" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout}">
+<head><title>Clubs</title></head>
+<body>
+<div layout:fragment="content">
+
+    <header class="page-head">
+        <div class="page-head__text">
+            <span class="eyebrow">Administration</span>
+            <h1 class="title">Clubs</h1>
+            <p class="lede">Désigner le responsable d'un club lui accorde automatiquement le rôle Organisateur. Un club désactivé disparaît des listes déroulantes, mais son historique reste consultable.</p>
+        </div>
+        <a class="btn btn--primary" th:href="@{/admin/clubs/nouveau}"><i class="ph-bold ph-plus"></i>Nouveau club</a>
+    </header>
+
+    <nav th:replace="~{fragments/admin :: onglets('clubs')}"></nav>
+
+    <div class="table-wrap">
+        <table class="table">
+            <thead>
+            <tr>
+                <th scope="col">Club</th>
+                <th scope="col">Responsable</th>
+                <th scope="col">Contact</th>
+                <th scope="col">Statut</th>
+                <th scope="col" class="num">Actions</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="c : ${clubs}" th:classappend="${!c.actif} ? 'is-inactive'">
+                <td><a th:href="@{/clubs/{id}(id=${c.id})}" th:text="${c.nom}" style="font-weight: 500; color: var(--ink)">Club</a></td>
+                <td>
+                    <div class="person">
+                        <span class="avatar" th:text="${c.responsable.initiales}">FT</span>
+                        <div><strong th:text="${c.responsable.nomComplet}">Nom</strong></div>
+                    </div>
+                </td>
+                <td class="muted" th:text="${c.courrielContact}">courriel</td>
+                <td>
+                    <span th:if="${c.actif}" class="badge badge--vert"><i class="ph-bold ph-check"></i>Actif</span>
+                    <span th:unless="${c.actif}" class="badge badge--gris"><i class="ph-bold ph-pause"></i>Inactif</span>
+                </td>
+                <td>
+                    <div class="actions">
+                        <a class="btn btn--ghost btn--sm" th:href="@{/admin/clubs/{id}/modifier(id=${c.id})}"><i class="ph-bold ph-pencil-simple"></i>Modifier</a>
+                        <form class="inline-form" th:action="@{/admin/clubs/{id}/actif(id=${c.id})}" method="post"
+                              th:data-confirm="${c.actif} ? |« ${c.nom} » ne sera plus proposé dans les filtres et ne pourra plus créer d'événements.| : |« ${c.nom} » sera de nouveau proposé aux usagers.|"
+                              th:data-confirm-ok="${c.actif} ? 'Désactiver' : 'Activer'"
+                              th:data-confirm-style="${c.actif} ? 'danger' : 'primary'"
+                              th:data-confirm-title="${c.actif} ? 'Désactiver ce club ?' : 'Activer ce club ?'">
+                            <button class="btn btn--sm" type="submit" th:classappend="${c.actif} ? 'btn--danger' : 'btn--secondary'"
+                                    th:text="${c.actif} ? 'Désactiver' : 'Activer'">Désactiver</button>
+                        </form>
+                    </div>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+</body>
+</html>

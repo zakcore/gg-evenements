@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="fr-CA" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout}">
+<head><title>Administration</title></head>
+<body>
+<div layout:fragment="content" th:with="s=${stats}">
+
+    <header class="page-head">
+        <div class="page-head__text">
+            <span class="eyebrow">Administration</span>
+            <h1 class="title">Vue d'ensemble</h1>
+            <p class="lede">L'activité de la plateforme, calculée directement par la base de données.</p>
+        </div>
+    </header>
+
+    <nav th:replace="~{fragments/admin :: onglets('tableau')}"></nav>
+
+    <div class="kpis">
+        <div class="kpi">
+            <span class="kpi__label"><i class="ph-bold ph-calendar-check"></i>Planifiés</span>
+            <span class="kpi__value" th:text="${s.nbPlanifies}">0</span>
+            <span class="kpi__note">événements à venir ou en cours</span>
+        </div>
+        <div class="kpi">
+            <span class="kpi__label"><i class="ph-bold ph-flag-checkered"></i>Terminés</span>
+            <span class="kpi__value" th:text="${s.nbTermines}">0</span>
+            <span class="kpi__note">depuis le début</span>
+        </div>
+        <div class="kpi">
+            <span class="kpi__label"><i class="ph-bold ph-prohibit"></i>Annulés</span>
+            <span class="kpi__value" th:text="${s.nbAnnules}">0</span>
+            <span class="kpi__note">conservés dans l'historique</span>
+        </div>
+        <div class="kpi">
+            <span class="kpi__label"><i class="ph-bold ph-star"></i>Note moyenne générale</span>
+            <span class="kpi__value" th:if="${s.noteMoyenneGenerale != null}">
+                <th:block th:text="${#numbers.formatDecimal(s.noteMoyenneGenerale, 1, 1, 'COMMA')}">4,2</th:block><small>/ 5</small></span>
+            <span class="kpi__value muted" th:unless="${s.noteMoyenneGenerale != null}">—</span>
+            <span class="kpi__note">sur l'ensemble des avis</span>
+        </div>
+    </div>
+
+    <div class="bento">
+        <section class="panel" aria-labelledby="titre-clubs">
+            <h2 class="panel__title" id="titre-clubs">Les 5 clubs les plus actifs · événements organisés</h2>
+            <ol class="bars" th:unless="${s.clubsActifs.isEmpty()}"
+                th:with="max=${s.clubsActifs[0].nbEvenements}">
+                <li class="bar" th:each="c, it : ${s.clubsActifs}"
+                    th:attr="title=|${c.nom} : ${c.nbEvenements} événement(s)|">
+                    <span class="bar__rank" th:text="${it.count}">1</span>
+                    <div>
+                        <div class="bar__name" th:text="${c.nom}">Club</div>
+                        <div class="bar__track"><div class="bar__fill" th:style="|width: ${c.nbEvenements * 100 / max}%; animation-delay: ${it.index * 60}ms|"></div></div>
+                    </div>
+                    <span class="bar__value" th:text="${c.nbEvenements}">4</span>
+                </li>
+            </ol>
+            <p class="muted" th:if="${s.clubsActifs.isEmpty()}">Aucun événement pour le moment.</p>
+        </section>
+
+        <section class="panel" aria-labelledby="titre-remplissage">
+            <h2 class="panel__title" id="titre-remplissage">Taux moyen de remplissage · événements terminés</h2>
+            <div class="kpi__value" th:if="${s.tauxMoyenRemplissage != null}">
+                <th:block th:text="${#numbers.formatDecimal(s.tauxMoyenRemplissage * 100, 1, 0)}">78</th:block><small>%</small></div>
+            <div class="kpi__value muted" th:unless="${s.tauxMoyenRemplissage != null}">—</div>
+            <div class="meter" style="height: 8px; margin: 12px 0 28px" th:if="${s.tauxMoyenRemplissage != null}">
+                <span class="meter__fill" th:style="|width: ${s.tauxMoyenRemplissage * 100 > 100 ? 100 : s.tauxMoyenRemplissage * 100}%|"></span>
+            </div>
+
+            <h2 class="panel__title">Répartition par statut · <span th:text="${s.total}">0</span> événements</h2>
+            <div class="split" role="img" th:if="${s.total > 0}"
+                 th:attr="aria-label=|${s.nbPlanifies} planifiés · ${s.nbTermines} terminés · ${s.nbAnnules} annulés|">
+                <span th:if="${s.nbPlanifies > 0}" th:style="|flex: ${s.nbPlanifies}; background: #2F3437|" th:title="|Planifiés : ${s.nbPlanifies}|"></span>
+                <span th:if="${s.nbTermines > 0}" th:style="|flex: ${s.nbTermines}; background: #A3A29E|" th:title="|Terminés : ${s.nbTermines}|"></span>
+                <span th:if="${s.nbAnnules > 0}" th:style="|flex: ${s.nbAnnules}; background: #D9837F|" th:title="|Annulés : ${s.nbAnnules}|"></span>
+            </div>
+            <ul class="legend">
+                <li><span class="swatch" style="background: #2F3437"></span>Planifiés<strong th:text="${s.nbPlanifies}">0</strong></li>
+                <li><span class="swatch" style="background: #A3A29E"></span>Terminés<strong th:text="${s.nbTermines}">0</strong></li>
+                <li><span class="swatch" style="background: #D9837F"></span>Annulés<strong th:text="${s.nbAnnules}">0</strong></li>
+            </ul>
+        </section>
+    </div>
+</div>
+</body>
+</html>

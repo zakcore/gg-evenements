@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="fr-CA" xmlns:th="http://www.thymeleaf.org">
+<body>
+
+<!-- Messages flash (succès / erreur / information) -->
+<th:block th:fragment="flash">
+    <div class="flash flash--succes" role="status" th:if="${succes}">
+        <i class="ph-bold ph-check-circle"></i>
+        <p th:text="${succes}">Opération réussie.</p>
+        <button class="flash__close" type="button" aria-label="Fermer"><i class="ph-bold ph-x"></i></button>
+    </div>
+    <div class="flash flash--info" role="status" th:if="${info}">
+        <i class="ph-bold ph-hourglass-medium"></i>
+        <p th:text="${info}">Information.</p>
+        <button class="flash__close" type="button" aria-label="Fermer"><i class="ph-bold ph-x"></i></button>
+    </div>
+    <div class="flash flash--erreur" role="alert" th:if="${erreur}">
+        <i class="ph-bold ph-warning-circle"></i>
+        <p th:text="${erreur}">Une erreur est survenue.</p>
+        <button class="flash__close" type="button" aria-label="Fermer"><i class="ph-bold ph-x"></i></button>
+    </div>
+</th:block>
+
+<!-- Indicateur de places restantes : texte + barre de remplissage -->
+<div th:fragment="places(e)" class="places">
+    <th:block th:with="attente=${e.complet and e.nbEnAttente > 0},
+                       bas=${!e.complet and e.placesRestantes <= (e.capaciteMax * 0.15 > 3 ? e.capaciteMax * 0.15 : 3)}">
+        <span class="places__label"
+              th:classappend="${attente} ? 'is-wait' : (${e.complet} ? 'is-full' : (${bas} ? 'is-low'))"
+              th:text="${attente} ? |Liste d'attente (${e.nbEnAttente})|
+                     : (${e.complet} ? 'Complet'
+                     : (${e.placesRestantes == 1} ? '1 place restante' : |${e.placesRestantes} places restantes|))">12 places restantes</span>
+        <span class="meter" role="img" th:attr="aria-label=|${e.nbConfirmes} inscriptions confirmées sur ${e.capaciteMax} places|">
+            <span class="meter__fill" th:classappend="${e.complet} ? 'is-full' : (${bas} ? 'is-low')"
+                  th:style="|width: ${e.tauxRemplissage}%|"></span>
+        </span>
+    </th:block>
+</div>
+
+<!-- Carte d'événement (liste et recherche) : seule action, « Voir le détail » -->
+<article th:fragment="carte(e, i)" class="card reveal" th:style="|--i: ${i}|">
+    <div class="card__media">
+        <img th:src="@{${e.imageUrl}}" th:alt="|Affiche : ${e.titre}|" loading="lazy" width="800" height="500">
+    </div>
+    <div class="card__body">
+        <span class="cat">
+            <span class="dot" th:style="|background: ${e.categorie.couleur}|"></span>
+            <span th:text="${e.categorie.nom}">Catégorie</span>
+        </span>
+        <h3 class="card__title" th:text="${e.titre}">Titre de l'événement</h3>
+        <div class="card__meta">
+            <div><i class="ph-bold ph-users-three"></i><span th:text="${e.club.nom}">Club</span></div>
+            <div><i class="ph-bold ph-map-pin"></i><span th:text="${e.lieu.nom}">Lieu</span></div>
+            <div><i class="ph-bold ph-calendar-blank"></i>
+                <span th:text="${#temporals.format(e.dateDebut, 'EEEE d MMMM · HH''h''mm')}">jeudi 22 octobre · 19h00</span></div>
+        </div>
+        <div class="card__foot">
+            <div th:replace="~{fragments/ui :: places(${e})}"></div>
+            <a class="btn btn--secondary btn--sm" th:href="@{/evenements/{id}(id=${e.id})}"
+               th:attr="aria-label=|Voir le détail : ${e.titre}|">
+                Voir le détail
+            </a>
+        </div>
+    </div>
+</article>
+
+<!-- Pagination (conserve les filtres et le tri de l'URL courante) -->
+<nav th:fragment="pagination(page)" class="pagination" aria-label="Pagination" th:if="${page.totalPages > 1}">
+    <a th:if="${page.hasPrevious()}" th:href="@{${urlSansPage}(page=${page.number - 1})}" aria-label="Page précédente">
+        <i class="ph-bold ph-caret-left"></i></a>
+    <span th:unless="${page.hasPrevious()}" class="is-disabled" aria-hidden="true"><i class="ph-bold ph-caret-left"></i></span>
+
+    <th:block th:each="n : ${#numbers.sequence(0, page.totalPages - 1)}">
+        <span th:if="${n == page.number}" class="is-current" aria-current="page" th:text="${n + 1}">1</span>
+        <a th:unless="${n == page.number}" th:href="@{${urlSansPage}(page=${n})}" th:text="${n + 1}">2</a>
+    </th:block>
+
+    <a th:if="${page.hasNext()}" th:href="@{${urlSansPage}(page=${page.number + 1})}" aria-label="Page suivante">
+        <i class="ph-bold ph-caret-right"></i></a>
+    <span th:unless="${page.hasNext()}" class="is-disabled" aria-hidden="true"><i class="ph-bold ph-caret-right"></i></span>
+</nav>
+
+<!-- Badge du statut d'un événement -->
+<th:block th:fragment="statut(e)">
+    <span th:if="${e.annule}" class="badge badge--rouge"><i class="ph-bold ph-prohibit"></i>Annulé</span>
+    <span th:if="${!e.annule and e.termine}" class="badge badge--gris"><i class="ph-bold ph-flag-checkered"></i>Terminé</span>
+    <span th:if="${!e.annule and !e.termine and !e.ouvert}" class="badge badge--jaune"><i class="ph-bold ph-play"></i>En cours</span>
+    <span th:if="${e.ouvert}" class="badge badge--bleu"><i class="ph-bold ph-calendar-check"></i>Planifié</span>
+</th:block>
+
+<!-- Badge du statut d'une inscription -->
+<th:block th:fragment="inscription(i)">
+    <span th:if="${i.confirmee}" class="badge badge--vert"><i class="ph-bold ph-check"></i>Confirmé</span>
+    <span th:unless="${i.confirmee}" class="badge badge--orange"><i class="ph-bold ph-hourglass-medium"></i>En liste d'attente</span>
+</th:block>
+
+<!-- Message d'erreur affiché à côté du champ fautif (à utiliser dans un formulaire th:object) -->
+<p th:fragment="erreur(champ)" class="field-error" th:if="${#fields.hasErrors(champ)}">
+    <i class="ph-bold ph-warning-circle"></i><span th:errors="*{__${champ}__}">Erreur</span>
+</p>
+
+<!-- Étoiles d'une note -->
+<span th:fragment="etoiles(note)" class="stars" th:attr="aria-label=|${note} sur 5|">
+    <i th:each="s : ${#numbers.sequence(1, 5)}" class="ph-fill ph-star" th:classappend="${s > note} ? 'off'"></i>
+</span>
+
+</body>
+</html>

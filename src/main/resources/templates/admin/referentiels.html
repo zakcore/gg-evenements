@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="fr-CA" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout}">
+<head><title>Catégories et lieux</title></head>
+<body>
+<div layout:fragment="content">
+
+    <header class="page-head">
+        <div class="page-head__text">
+            <span class="eyebrow">Administration</span>
+            <h1 class="title">Catégories et lieux</h1>
+            <p class="lede">Une catégorie ou un lieu déjà utilisé par un événement ne peut pas être supprimé.</p>
+        </div>
+    </header>
+
+    <nav th:replace="~{fragments/admin :: onglets('referentiels')}"></nav>
+
+    <section class="section" aria-labelledby="titre-categories">
+        <div class="section__head">
+            <h2 class="section-title" id="titre-categories">Catégories <span class="count" th:text="${categories.size()}">5</span></h2>
+            <a class="btn btn--primary btn--sm" th:href="@{/admin/categories/nouvelle}"><i class="ph-bold ph-plus"></i>Nouvelle catégorie</a>
+        </div>
+        <div class="table-wrap">
+            <table class="table">
+                <thead><tr><th scope="col">Nom</th><th scope="col">Description</th><th scope="col">Couleur</th><th scope="col" class="num">Actions</th></tr></thead>
+                <tbody>
+                <tr th:each="c : ${categories}">
+                    <td><span class="cat" style="font-weight: 500"><span class="dot" th:style="|background: ${c.couleur}|"></span><span th:text="${c.nom}">Nom</span></span></td>
+                    <td class="muted" th:text="${c.description ?: '—'}">Description</td>
+                    <td><span class="color-chip"><i th:style="|background: ${c.couleur}|"></i><span th:text="${c.couleur}">#000000</span></span></td>
+                    <td>
+                        <div class="actions">
+                            <a class="btn btn--ghost btn--sm" th:href="@{/admin/categories/{id}/modifier(id=${c.id})}"><i class="ph-bold ph-pencil-simple"></i>Modifier</a>
+                            <form class="inline-form" th:action="@{/admin/categories/{id}/supprimer(id=${c.id})}" method="post"
+                                  data-confirm-title="Supprimer cette catégorie ?" data-confirm-ok="Supprimer"
+                                  th:attr="data-confirm=|La catégorie « ${c.nom} » sera supprimée définitivement.|">
+                                <button class="btn btn--danger btn--sm" type="submit"><i class="ph-bold ph-trash"></i>Supprimer</button>
+                            </form>
+                        </div>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <section class="section" aria-labelledby="titre-lieux">
+        <div class="section__head">
+            <h2 class="section-title" id="titre-lieux">Lieux <span class="count" th:text="${lieux.size()}">6</span></h2>
+            <a class="btn btn--primary btn--sm" th:href="@{/admin/lieux/nouveau}"><i class="ph-bold ph-plus"></i>Nouveau lieu</a>
+        </div>
+        <div class="table-wrap">
+            <table class="table">
+                <thead><tr><th scope="col">Nom</th><th scope="col">Campus</th><th scope="col">Adresse</th><th scope="col" class="num">Capacité</th><th scope="col" class="num">Actions</th></tr></thead>
+                <tbody>
+                <tr th:each="l : ${lieux}">
+                    <td style="font-weight: 500; color: var(--ink)" th:text="${l.nom}">Nom</td>
+                    <td th:text="${l.campus}">Campus</td>
+                    <td class="muted" th:text="${l.adresse}">Adresse</td>
+                    <td class="num mono" th:text="${l.capaciteMax}">300</td>
+                    <td>
+                        <div class="actions">
+                            <a class="btn btn--ghost btn--sm" th:href="@{/admin/lieux/{id}/modifier(id=${l.id})}"><i class="ph-bold ph-pencil-simple"></i>Modifier</a>
+                            <form class="inline-form" th:action="@{/admin/lieux/{id}/supprimer(id=${l.id})}" method="post"
+                                  data-confirm-title="Supprimer ce lieu ?" data-confirm-ok="Supprimer"
+                                  th:attr="data-confirm=|Le lieu « ${l.nom} » sera supprimé définitivement.|">
+                                <button class="btn btn--danger btn--sm" type="submit"><i class="ph-bold ph-trash"></i>Supprimer</button>
+                            </form>
+                        </div>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+</div>
+</body>
+</html>

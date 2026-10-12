@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="fr-CA" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout}">
+<head><title th:text="${evenement.titre}">Événement</title></head>
+<body>
+<div layout:fragment="content" th:with="e=${evenement}">
+
+    <a class="back" th:href="@{/evenements}"><i class="ph-bold ph-arrow-left"></i>Retour à la liste des événements</a>
+
+    <div class="detail">
+        <!-- Colonne principale -->
+        <div>
+            <div class="detail__hero">
+                <img th:src="@{${e.imageUrl}}" th:alt="|Affiche : ${e.titre}|" width="1280" height="720">
+            </div>
+
+            <div class="detail__tags">
+                <span class="cat">
+                    <span class="dot" th:style="|background: ${e.categorie.couleur}|"></span>
+                    <span th:text="${e.categorie.nom}">Catégorie</span>
+                </span>
+                <th:block th:replace="~{fragments/ui :: statut(${e})}"></th:block>
+            </div>
+
+            <h1 class="detail__title" th:text="${e.titre}">Titre</h1>
+            <p class="detail__club">Organisé par
+                <a th:href="@{/clubs/{id}(id=${e.club.id})}" th:text="${e.club.nom}">Club</a></p>
+
+            <div class="prose" th:text="${e.description}">Description</div>
+
+            <!-- Avis : événement terminé ayant au moins un avis -->
+            <section class="reviews" th:if="${e.termine and avis != null and !avis.isEmpty()}" aria-labelledby="titre-avis">
+                <h2 class="section-title" id="titre-avis">Avis des participants
+                    <span class="count" th:text="${avis.size()}">2</span></h2>
+                <div class="rating-summary">
+                    <strong th:text="${#numbers.formatDecimal(moyenne, 1, 1, 'COMMA')}">4,5</strong>
+                    <div>
+                        <span th:replace="~{fragments/ui :: etoiles(${moyenne + 0.5})}"></span>
+                        <div class="muted" style="font-size: 13px">Note moyenne sur 5</div>
+                    </div>
+                </div>
+                <article class="review" th:each="a : ${avis}">
+                    <div class="review__head">
+                        <span class="avatar" th:text="${a.utilisateur.initiales}">CP</span>
+                        <span class="review__author" th:text="${a.utilisateur.nomComplet}">Auteur</span>
+                        <span th:replace="~{fragments/ui :: etoiles(${a.note})}"></span>
+                        <time class="review__date" th:text="${#temporals.format(a.dateAvis, 'd MMMM yyyy')}">date</time>
+                    </div>
+                    <p th:if="${a.commentaire}" th:text="${a.commentaire}">Commentaire</p>
+                    <p th:unless="${a.commentaire}" class="muted">Aucun commentaire.</p>
+                </article>
+            </section>
+        </div>
+
+        <!-- Colonne latérale : informations et action principale -->
+        <aside class="aside">
+            <div class="panel">
+                <h2 class="panel__title">Inscription</h2>
+
+                <div class="status-line" th:if="${inscription != null}">
+                    <span class="muted">Votre statut</span>
+                    <th:block th:replace="~{fragments/ui :: inscription(${inscription})}"></th:block>
+                </div>
+
+                <div th:replace="~{fragments/ui :: places(${e})}"></div>
+
+                <div class="stats3">
+                    <div><strong th:text="${e.capaciteMax}">40</strong><span>Capacité</span></div>
+                    <div><strong th:text="${e.nbConfirmes}">32</strong><span>Confirmées</span></div>
+                    <div><strong th:text="${e.nbEnAttente}">0</strong><span>En attente</span></div>
+                </div>
+
+                <!-- Un seul bouton d'action principal, selon la situation de l'utilisateur -->
+                <div class="banner-cancel" th:if="${e.annule}" role="status">
+                    <i class="ph-bold ph-prohibit"></i><span>Cet événement a été annulé</span>
+                </div>
+                <th:block th:unless="${e.annule}">
+                    <form th:if="${inscription == null and e.ouvert}" th:action="@{/evenements/{id}/inscription(id=${e.id})}" method="post">
+                        <button class="btn btn--primary btn--lg btn--block" type="submit">
+                            <i class="ph-bold ph-plus"></i>
+                            <span th:text="${e.complet} ? 'S\'inscrire en liste d\'attente' : 'S\'inscrire'">S'inscrire</span>
+                        </button>
+                    </form>
+                    <form th:if="${inscription != null and e.ouvert}" th:action="@{/evenements/{id}/desinscription(id=${e.id})}" method="post"
+                          data-confirm-title="Se désinscrire ?"
+                          th:data-confirm="${inscription.confirmee and e.nbEnAttente > 0} ? 'Votre place sera attribuée automatiquement à la première personne en liste d\'attente.' : 'Vous pourrez vous réinscrire plus tard s\'il reste des places.'"
+                          data-confirm-ok="Me désinscrire">
+                        <button class="btn btn--secondary btn--lg btn--block" type="submit">
+                            <i class="ph-bold ph-minus-circle"></i>Se désinscrire
+                        </button>
+                    </form>
+                    <div class="banner-muted" th:if="${e.termine}">
+                        <i class="ph-bold ph-flag-checkered"></i><span>Cet événement est terminé.</span>
+                    </div>
+                    <div class="banner-muted" th:if="${!e.termine and !e.ouvert}">
+                        <i class="ph-bold ph-play"></i><span>Cet événement est en cours.</span>
+                    </div>
+                </th:block>
+            </div>
+
+            <div class="panel">
+                <h2 class="panel__title">Informations</h2>
+                <dl class="facts">
+                    <div class="fact">
+                        <i class="ph-bold ph-calendar-blank"></i>
+                        <div>
+                            <dt>Début</dt>
+                            <dd th:text="${#temporals.format(e.dateDebut, 'EEEE d MMMM yyyy, HH''h''mm')}">date</dd>
+                        </div>
+                    </div>
+                    <div class="fact">
+                        <i class="ph-bold ph-clock"></i>
+                        <div>
+                            <dt>Fin</dt>
+                            <dd th:text="${#temporals.format(e.dateFin, 'EEEE d MMMM yyyy, HH''h''mm')}">date</dd>
+                        </div>
+                    </div>
+                    <div class="fact">
+                        <i class="ph-bold ph-map-pin"></i>
+                        <div>
+                            <dt>Lieu</dt>
+                            <dd><span th:text="${e.lieu.nom}">Lieu</span>
+                                <small th:text="${e.lieu.campus}">Campus</small>
+                                <small th:text="${e.lieu.adresse}">Adresse</small></dd>
+                        </div>
+                    </div>
+                    <div class="fact">
+                        <i class="ph-bold ph-users-three"></i>
+                        <div>
+                            <dt>Club organisateur</dt>
+                            <dd><a th:href="@{/clubs/{id}(id=${e.club.id})}" th:text="${e.club.nom}">Club</a></dd>
+                        </div>
+                    </div>
+                </dl>
+            </div>
+        </aside>
+    </div>
+</div>
+</body>
+</html>

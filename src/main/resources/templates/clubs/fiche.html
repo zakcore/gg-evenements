@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="fr-CA" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout}">
+<head><title th:text="${club.nom}">Club</title></head>
+<body>
+<div layout:fragment="content">
+
+    <a class="back" th:href="@{/evenements}"><i class="ph-bold ph-arrow-left"></i>Retour à la liste des événements</a>
+
+    <header class="club-head">
+        <div class="club-mark" aria-hidden="true" th:text="${#strings.substring(club.nom, 0, 1)}">L</div>
+        <div>
+            <span class="eyebrow">Club étudiant
+                <span th:unless="${club.actif}" class="badge badge--gris" style="margin-left: 8px">Inactif cette session</span></span>
+            <h1 class="title" th:text="${club.nom}">Nom du club</h1>
+            <p class="lede" th:if="${club.description}" th:text="${club.description}">Description</p>
+            <div class="row__meta" style="margin-top: 14px">
+                <span><i class="ph-bold ph-user"></i>Responsable : <span th:text="${club.responsable.nomComplet}">Nom</span></span>
+                <span><i class="ph-bold ph-envelope-simple"></i>
+                    <a th:href="|mailto:${club.courrielContact}|" th:text="${club.courrielContact}">courriel</a></span>
+            </div>
+        </div>
+    </header>
+
+    <section class="section" aria-labelledby="titre-avenir">
+        <div class="section__head">
+            <h2 class="section-title" id="titre-avenir">Prochains événements <span class="count" th:text="${aVenir.size()}">2</span></h2>
+        </div>
+        <div class="grid" th:unless="${aVenir.isEmpty()}">
+            <th:block th:each="e, it : ${aVenir}"><article th:replace="~{fragments/ui :: carte(${e}, ${it.index})}"></article></th:block>
+        </div>
+        <div class="empty" th:if="${aVenir.isEmpty()}">
+            <i class="ph-bold ph-calendar-blank"></i>
+            <h3>Aucun événement planifié</h3>
+            <p>Ce club n'a pas d'événement à venir pour le moment.</p>
+        </div>
+    </section>
+
+    <section class="section" aria-labelledby="titre-historique" th:unless="${passes.isEmpty()}">
+        <div class="section__head">
+            <h2 class="section-title" id="titre-historique">Historique <span class="count" th:text="${passes.size()}">3</span></h2>
+        </div>
+        <div class="rows">
+            <div class="row" th:each="e : ${passes}" th:classappend="${e.annule} ? 'is-cancelled'">
+                <div class="row__thumb"><img th:src="@{${e.imageUrl}}" alt="" loading="lazy"></div>
+                <div>
+                    <a class="row__title" th:href="@{/evenements/{id}(id=${e.id})}" th:text="${e.titre}">Titre</a>
+                    <div class="row__meta">
+                        <span><i class="ph-bold ph-calendar-blank"></i><span th:text="${#temporals.format(e.dateDebut, 'd MMMM yyyy')}">date</span></span>
+                        <span><i class="ph-bold ph-users"></i><span th:text="|${e.nbConfirmes} participant(s)|">0</span></span>
+                    </div>
+                </div>
+                <div class="actions"><th:block th:replace="~{fragments/ui :: statut(${e})}"></th:block></div>
+            </div>
+        </div>
+    </section>
+</div>
+</body>
+</html>

@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="fr-CA" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout}">
+<head><title>Laisser un avis</title></head>
+<body>
+<div layout:fragment="content" style="max-width: 680px; margin: 0 auto">
+
+    <a class="back" th:href="@{/mes-evenements}"><i class="ph-bold ph-arrow-left"></i>Retour à « Mes événements »</a>
+
+    <header class="page-head">
+        <div class="page-head__text">
+            <span class="eyebrow">Votre avis</span>
+            <h1 class="title" th:text="${evenement.titre}">Titre</h1>
+            <p class="lede">
+                <span th:text="${evenement.club.nom}">Club</span> ·
+                <span th:text="${#temporals.format(evenement.dateDebut, 'd MMMM yyyy')}">date</span>
+            </p>
+        </div>
+    </header>
+
+    <form class="form-card" th:action="@{/evenements/{id}/avis(id=${evenement.id})}" th:object="${avisForm}" method="post" novalidate>
+        <fieldset class="field" style="border: 0; padding: 0; margin: 0 0 24px">
+            <legend class="label">Note <span class="req" aria-hidden="true">*</span></legend>
+            <div class="rating" role="radiogroup" aria-label="Note de 1 à 5">
+                <th:block th:each="n : ${#numbers.sequence(5, 1, -1)}">
+                    <input type="radio" th:id="|note-${n}|" name="note" th:value="${n}" th:checked="${avisForm.note == n}">
+                    <label th:for="|note-${n}|" th:title="|${n} sur 5|"><i class="ph-fill ph-star"></i><span class="sr-only" th:text="|${n} sur 5|"></span></label>
+                </th:block>
+            </div>
+            <p th:replace="~{fragments/ui :: erreur('note')}"></p>
+        </fieldset>
+
+        <div class="field">
+            <label class="label" for="commentaire">Commentaire <span class="opt">(facultatif)</span></label>
+            <textarea class="textarea" id="commentaire" th:field="*{commentaire}" th:classappend="${#fields.hasErrors('commentaire')} ? 'is-invalid'"
+                      data-counter="500" placeholder="Qu'avez-vous apprécié ? Que pourrait-on améliorer ?"></textarea>
+            <div style="display: flex; justify-content: space-between; gap: 12px">
+                <p th:replace="~{fragments/ui :: erreur('commentaire')}"></p>
+                <span class="counter" data-counter-for="commentaire" style="margin-left: auto">0 / 500</span>
+            </div>
+        </div>
+
+        <div class="form-actions">
+            <a class="btn btn--ghost" th:href="@{/mes-evenements}">Retour</a>
+            <button class="btn btn--primary" type="submit"><i class="ph-bold ph-paper-plane-tilt"></i>Envoyer mon avis</button>
+        </div>
+    </form>
+</div>
+</body>
+</html>

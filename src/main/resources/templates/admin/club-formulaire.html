@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="fr-CA" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout}">
+<head><title th:text="${club == null} ? 'Nouveau club' : 'Modifier le club'">Club</title></head>
+<body>
+<div layout:fragment="content" style="max-width: 760px; margin: 0 auto"
+     th:with="action=${club == null} ? @{/admin/clubs/nouveau} : @{/admin/clubs/{id}/modifier(id=${club?.id})}">
+
+    <a class="back" th:href="@{/admin/clubs}"><i class="ph-bold ph-arrow-left"></i>Retour aux clubs</a>
+
+    <header class="page-head">
+        <div class="page-head__text">
+            <span class="eyebrow">Administration · Clubs</span>
+            <h1 class="title" th:text="${club == null} ? 'Nouveau club' : ${club.nom}">Nouveau club</h1>
+        </div>
+    </header>
+
+    <form class="form-card" th:action="${action}" th:object="${clubForm}" method="post" novalidate>
+        <div class="flash flash--erreur form-error" role="alert" th:if="${#fields.hasGlobalErrors()}">
+            <i class="ph-bold ph-warning-circle"></i>
+            <p><span th:each="err : ${#fields.globalErrors()}" th:text="${err}">Erreur</span></p>
+        </div>
+
+        <div class="field">
+            <label class="label" for="nom">Nom du club <span class="req" aria-hidden="true">*</span></label>
+            <input class="input" id="nom" th:field="*{nom}" maxlength="100" required
+                   th:classappend="${#fields.hasErrors('nom')} ? 'is-invalid'" placeholder="ex. Club de photographie">
+            <p th:replace="~{fragments/ui :: erreur('nom')}"></p>
+        </div>
+
+        <div class="field">
+            <label class="label" for="description">Description <span class="opt">(facultatif)</span></label>
+            <textarea class="textarea" id="description" th:field="*{description}" rows="4" data-counter="1000"
+                      th:classappend="${#fields.hasErrors('description')} ? 'is-invalid'"
+                      placeholder="Mission du club, activités habituelles…"></textarea>
+            <span class="counter" data-counter-for="description">0 / 1000</span>
+            <p th:replace="~{fragments/ui :: erreur('description')}"></p>
+        </div>
+
+        <div class="form-grid">
+            <div class="field">
+                <label class="label" for="courrielContact">Courriel de contact <span class="req" aria-hidden="true">*</span></label>
+                <input class="input" type="email" id="courrielContact" th:field="*{courrielContact}" maxlength="120" required
+                       th:classappend="${#fields.hasErrors('courrielContact')} ? 'is-invalid'" placeholder="club@cgodin.qc.ca">
+                <p th:replace="~{fragments/ui :: erreur('courrielContact')}"></p>
+            </div>
+            <div class="field">
+                <label class="label" for="responsableId">Responsable <span class="req" aria-hidden="true">*</span>
+                    <span class="tip" tabindex="0" data-tip="La personne choisie reçoit automatiquement le rôle Organisateur. Une personne ne peut être responsable que d'un seul club."><i class="ph-bold ph-info"></i></span>
+                </label>
+                <select class="select" id="responsableId" th:field="*{responsableId}" required
+                        th:classappend="${#fields.hasErrors('responsableId')} ? 'is-invalid'">
+                    <option value="">Choisir un utilisateur…</option>
+                    <option th:each="u : ${utilisateurs}" th:value="${u.id}" th:text="|${u.nom}, ${u.prenom} — ${u.courriel}|">Nom</option>
+                </select>
+                <p th:replace="~{fragments/ui :: erreur('responsableId')}"></p>
+            </div>
+        </div>
+
+        <div class="form-actions">
+            <a class="btn btn--ghost" th:href="@{/admin/clubs}">Retour</a>
+            <button class="btn btn--primary" type="submit"><i class="ph-bold ph-check"></i>Enregistrer</button>
+        </div>
+    </form>
+</div>
+</body>
+</html>

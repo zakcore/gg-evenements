@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="fr-CA" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout}">
+<head><title>Mes événements à organiser</title></head>
+<body>
+<div layout:fragment="content">
+
+    <header class="page-head">
+        <div class="page-head__text">
+            <span class="eyebrow" th:text="${club.nom}">Club</span>
+            <h1 class="title">Mes événements à organiser</h1>
+            <p class="lede">Créez les événements de votre club, ajustez-les et suivez les inscriptions.</p>
+        </div>
+        <a class="btn btn--primary" th:href="@{/organisateur/evenements/nouveau}" th:if="${club.actif}">
+            <i class="ph-bold ph-plus"></i>Créer un événement</a>
+    </header>
+
+    <div class="flash flash--info" th:unless="${club.actif}" role="status">
+        <i class="ph-bold ph-pause-circle"></i>
+        <p>Votre club est désactivé cette session : la création d'événements est suspendue. Contactez la Vie étudiante.</p>
+    </div>
+
+    <div class="table-wrap" th:unless="${evenements.isEmpty()}">
+        <table class="table">
+            <thead>
+            <tr>
+                <th scope="col">Événement</th>
+                <th scope="col">Date</th>
+                <th scope="col">Statut</th>
+                <th scope="col">Remplissage</th>
+                <th scope="col" class="num">Actions</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="e : ${evenements}">
+                <td>
+                    <a th:href="@{/evenements/{id}(id=${e.id})}" th:text="${e.titre}" style="font-weight: 500; color: var(--ink)">Titre</a>
+                    <div class="cat" style="margin-top: 3px; font-size: 12.5px; color: var(--muted)">
+                        <span class="dot" th:style="|background: ${e.categorie.couleur}|"></span>
+                        <span th:text="|${e.categorie.nom} · ${e.lieu.nom}|">Catégorie · Lieu</span>
+                    </div>
+                </td>
+                <td class="nowrap" th:text="${#temporals.format(e.dateDebut, 'd MMM yyyy, HH''h''mm')}">date</td>
+                <td><th:block th:replace="~{fragments/ui :: statut(${e})}"></th:block></td>
+                <td style="min-width: 170px">
+                    <div class="places">
+                        <span class="places__label">
+                            <span th:text="|${e.nbConfirmes} / ${e.capaciteMax}|">0 / 40</span>
+                            <span class="muted" th:if="${e.nbEnAttente > 0}" th:text="|· ${e.nbEnAttente} en attente|"></span>
+                        </span>
+                        <span class="meter"><span class="meter__fill" th:classappend="${e.complet} ? 'is-full'" th:style="|width: ${e.tauxRemplissage}%|"></span></span>
+                    </div>
+                </td>
+                <td>
+                    <div class="actions">
+                        <a class="btn btn--secondary btn--sm" th:href="@{/organisateur/evenements/{id}/inscriptions(id=${e.id})}">
+                            <i class="ph-bold ph-users"></i>Inscriptions</a>
+                        <a class="btn btn--ghost btn--sm" th:if="${!e.annule and !e.termine}"
+                           th:href="@{/organisateur/evenements/{id}/modifier(id=${e.id})}">
+                            <i class="ph-bold ph-pencil-simple"></i>Modifier</a>
+                    </div>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="empty" th:if="${evenements.isEmpty()}">
+        <i class="ph-bold ph-calendar-plus"></i>
+        <h3>Aucun événement pour l'instant</h3>
+        <p>Créez le premier événement de votre club : il apparaîtra immédiatement dans la liste des événements à venir.</p>
+        <a class="btn btn--primary" th:href="@{/organisateur/evenements/nouveau}" th:if="${club.actif}">Créer un événement</a>
+    </div>
+</div>
+</body>
+</html>

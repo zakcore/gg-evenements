@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="fr-CA" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout}">
+<head><title th:text="${evenement == null} ? 'Créer un événement' : 'Modifier l\'événement'">Événement</title></head>
+<body>
+<div layout:fragment="content" style="max-width: 880px; margin: 0 auto"
+     th:with="creation=${evenement == null},
+              action=${evenement == null} ? @{/organisateur/evenements/nouveau} : @{/organisateur/evenements/{id}/modifier(id=${evenement?.id})}">
+
+    <a class="back" th:href="@{/organisateur/evenements}"><i class="ph-bold ph-arrow-left"></i>Retour à mes événements</a>
+
+    <header class="page-head">
+        <div class="page-head__text">
+            <span class="eyebrow" th:text="${club.nom}">Club</span>
+            <h1 class="title" th:text="${creation} ? 'Créer un événement' : 'Modifier l\'événement'">Créer un événement</h1>
+            <p class="lede" th:if="${creation}">L'événement sera publié au nom de votre club, au statut « Planifié », dès l'enregistrement.</p>
+            <p class="lede" th:unless="${creation}">
+                <span th:text="|${evenement.nbConfirmes} inscription(s) confirmée(s) · ${evenement.nbEnAttente} en attente|">0 inscription</span>
+            </p>
+        </div>
+    </header>
+
+    <form class="form-card" th:action="${action}" th:object="${evenementForm}" method="post" enctype="multipart/form-data" novalidate>
+
+        <div class="flash flash--erreur form-error" role="alert" th:if="${#fields.hasGlobalErrors()}">
+            <i class="ph-bold ph-warning-circle"></i>
+            <p><span th:each="err : ${#fields.globalErrors()}" th:text="${err}">Erreur</span></p>
+        </div>
+
+        <div class="form-section">
+            <h2 class="form-section__title">L'essentiel</h2>
+            <p class="form-section__hint">Ce que les étudiantes et étudiants verront en premier.</p>
+
+            <div class="field">
+                <label class="label" for="titre">Titre <span class="req" aria-hidden="true">*</span></label>
+                <input class="input" id="titre" th:field="*{titre}" maxlength="150" required
+                       th:classappend="${#fields.hasErrors('titre')} ? 'is-invalid'"
+                       placeholder="ex. Tournoi de volleyball intercollégial">
+                <p th:replace="~{fragments/ui :: erreur('titre')}"></p>
+            </div>
+
+            <div class="field">
+                <label class="label" for="description">Description <span class="req" aria-hidden="true">*</span>
+                    <span class="tip" tabindex="0" data-tip="Précisez le déroulement, ce qu'il faut apporter et à qui s'adresse l'événement. Les retours à la ligne sont conservés."><i class="ph-bold ph-info"></i></span>
+                </label>
+                <textarea class="textarea" id="description" th:field="*{description}" rows="7" required
+                          th:classappend="${#fields.hasErrors('description')} ? 'is-invalid'"
+                          placeholder="Déroulement, public visé, matériel à apporter, point de rencontre…"></textarea>
+                <p th:replace="~{fragments/ui :: erreur('description')}"></p>
+            </div>
+
+            <div class="form-grid">
+                <div class="field">
+                    <label class="label" for="categorieId">Catégorie <span class="req" aria-hidden="true">*</span></label>
+                    <select class="select" id="categorieId" th:field="*{categorieId}" required
+                            th:classappend="${#fields.hasErrors('categorieId')} ? 'is-invalid'">
+                        <option value="">Choisir une catégorie…</option>
+                        <option th:each="c : ${categories}" th:value="${c.id}" th:text="${c.nom}">Sport</option>
+                    </select>
+                    <p th:replace="~{fragments/ui :: erreur('categorieId')}"></p>
+                </div>
+                <div class="field">
+                    <label class="label" for="lieuId">Lieu <span class="req" aria-hidden="true">*</span>
+                        <span class="tip" tabindex="0" data-tip="La capacité de l'événement ne peut pas dépasser celle du lieu choisi."><i class="ph-bold ph-info"></i></span>
+                    </label>
+                    <select class="select" id="lieuId" th:field="*{lieuId}" required
+                            th:classappend="${#fields.hasErrors('lieuId')} ? 'is-invalid'">
+                        <option value="">Choisir un lieu…</option>
+                        <option th:each="l : ${lieux}" th:value="${l.id}" th:text="|${l.nom} — ${l.campus} (${l.capaciteMax} places)|">Agora</option>
+                    </select>
+                    <p th:replace="~{fragments/ui :: erreur('lieuId')}"></p>
+                </div>
+            </div>
+        </div>
+
+        <div class="form-section">
+            <h2 class="form-section__title">Date et capacité</h2>
+            <p class="form-section__hint">La date de fin doit être postérieure à la date de début.</p>
+
+            <div class="form-grid">
+                <div class="field">
+                    <label class="label" for="dateDebut">Début <span class="req" aria-hidden="true">*</span></label>
+                    <input class="input" type="datetime-local" id="dateDebut" th:field="*{dateDebut}" required
+                           th:classappend="${#fields.hasErrors('dateDebut')} ? 'is-invalid'">
+                    <p th:replace="~{fragments/ui :: erreur('dateDebut')}"></p>
+                </div>
+                <div class="field">
+                    <label class="label" for="dateFin">Fin <span class="req" aria-hidden="true">*</span></label>
+                    <input class="input" type="datetime-local" id="dateFin" th:field="*{dateFin}" required
+                           th:classappend="${#fields.hasErrors('dateFin')} ? 'is-invalid'">
+                    <p th:replace="~{fragments/ui :: erreur('dateFin')}"></p>
+                </div>
+                <div class="field">
+                    <label class="label" for="capaciteMax">Capacité maximale <span class="req" aria-hidden="true">*</span>
+                        <span class="tip" tabindex="0" data-tip="Une fois la capacité atteinte, les nouvelles inscriptions vont en liste d'attente. Vous ne pourrez pas descendre sous le nombre d'inscriptions déjà confirmées."><i class="ph-bold ph-info"></i></span>
+                    </label>
+                    <input class="input" type="number" id="capaciteMax" th:field="*{capaciteMax}" min="1" step="1" required inputmode="numeric"
+                           th:classappend="${#fields.hasErrors('capaciteMax')} ? 'is-invalid'" placeholder="ex. 40">
+                    <p class="hint" th:unless="${creation or #fields.hasErrors('capaciteMax')}"
+                       th:text="|Minimum : ${evenement.nbConfirmes} (inscriptions confirmées)|">Minimum</p>
+                    <p th:replace="~{fragments/ui :: erreur('capaciteMax')}"></p>
+                </div>
+            </div>
+        </div>
+
+        <div class="form-section">
+            <h2 class="form-section__title">Affiche <span class="opt muted" style="font-size: 14px; font-family: var(--font-sans)">(facultatif)</span></h2>
+            <p class="form-section__hint">Format paysage conseillé (16:10). JPG, PNG, WEBP ou GIF, 5 Mo au maximum. Sans affiche, une image par défaut est utilisée.</p>
+            <div style="display: grid; grid-template-columns: 200px 1fr; gap: 20px; align-items: center" class="form-affiche">
+                <div class="row__thumb" style="width: 200px">
+                    <img id="apercu" th:src="@{${evenement != null ? evenement.imageUrl : '/img/affiche-defaut.svg'}}" alt="Aperçu de l'affiche">
+                </div>
+                <div class="field" style="margin: 0">
+                    <label class="label" for="image">Choisir une image</label>
+                    <input class="input" type="file" id="image" name="image" accept="image/jpeg,image/png,image/webp,image/gif"
+                           data-preview="apercu" th:classappend="${#fields.hasErrors('image')} ? 'is-invalid'">
+                    <p class="hint" th:unless="${creation}">Laissez vide pour conserver l'affiche actuelle.</p>
+                    <p th:replace="~{fragments/ui :: erreur('image')}"></p>
+                </div>
+            </div>
+        </div>
+
+        <div class="form-actions">
+            <a class="btn btn--ghost" th:href="@{/organisateur/evenements}">Retour à mes événements</a>
+            <button class="btn btn--primary" type="submit">
+                <i class="ph-bold ph-check"></i>
+                <span th:text="${creation} ? 'Créer l\'événement' : 'Enregistrer les modifications'">Créer l'événement</span>
+            </button>
+        </div>
+    </form>
+
+    <!-- Annulation : bouton distinct, avec confirmation -->
+    <section class="panel" style="margin-top: 24px; display: flex; justify-content: space-between; align-items: center; gap: 16px; flex-wrap: wrap"
+             th:unless="${creation}">
+        <div>
+            <h2 class="form-section__title" style="margin: 0">Annuler l'événement</h2>
+            <p class="muted" style="margin: 4px 0 0; font-size: 14px">L'événement passera au statut « Annulé ». Il n'est pas supprimé : inscriptions et historique sont conservés.</p>
+        </div>
+        <form th:action="@{/organisateur/evenements/{id}/annuler(id=${evenement.id})}" method="post"
+              data-confirm-title="Annuler cet événement ?"
+              th:attr="data-confirm=|« ${evenement.titre} » sera retiré de la liste des événements à venir. Les personnes inscrites le verront comme annulé. Cette action est définitive.|"
+              data-confirm-ok="Annuler l'événement">
+            <button class="btn btn--danger" type="submit"><i class="ph-bold ph-prohibit"></i>Annuler l'événement</button>
+        </form>
+    </section>
+</div>
+</body>
+</html>

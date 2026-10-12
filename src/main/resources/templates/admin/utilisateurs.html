@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="fr-CA" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout}">
+<head><title>Utilisateurs</title></head>
+<body>
+<div layout:fragment="content">
+
+    <header class="page-head">
+        <div class="page-head__text">
+            <span class="eyebrow">Administration</span>
+            <h1 class="title">Utilisateurs</h1>
+            <p class="lede">Activez ou désactivez des comptes et gérez le rôle Organisateur. Aucun compte n'est supprimé : l'historique est toujours conservé.</p>
+        </div>
+    </header>
+
+    <nav th:replace="~{fragments/admin :: onglets('utilisateurs')}"></nav>
+
+    <div class="table-wrap">
+        <table class="table">
+            <thead>
+            <tr>
+                <th scope="col">Utilisateur</th>
+                <th scope="col">Rôle(s)</th>
+                <th scope="col">Statut</th>
+                <th scope="col" class="num">Actions</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="u : ${utilisateurs}" th:classappend="${!u.actif} ? 'is-inactive'">
+                <td>
+                    <div class="person">
+                        <span class="avatar" th:text="${u.initiales}">NG</span>
+                        <div><strong th:text="|${u.prenom} ${u.nom}|">Prénom Nom</strong>
+                            <small th:text="${u.courriel}">courriel</small></div>
+                    </div>
+                </td>
+                <td>
+                    <div class="actions" style="gap: 6px; justify-content: flex-start">
+                        <span th:each="r : ${u.rolesTries}" class="badge"
+                              th:classappend="${r.nom == 'ROLE_ADMIN'} ? 'badge--bleu' : (${r.nom == 'ROLE_ORGANISATEUR'} ? 'badge--jaune' : 'badge--gris')"
+                              th:text="${r.libelle}">Rôle</span>
+                    </div>
+                </td>
+                <td>
+                    <span th:if="${u.actif}" class="badge badge--vert"><i class="ph-bold ph-check"></i>Actif</span>
+                    <span th:unless="${u.actif}" class="badge badge--rouge"><i class="ph-bold ph-lock-simple"></i>Inactif</span>
+                </td>
+                <td>
+                    <div class="actions">
+                        <form class="inline-form" th:action="@{/admin/utilisateurs/{id}/organisateur(id=${u.id})}" method="post"
+                              th:data-confirm="${u.organisateur} ? |Retirer le rôle Organisateur à ${u.prenom} ${u.nom} ?| : |Accorder le rôle Organisateur à ${u.prenom} ${u.nom} ?|"
+                              th:data-confirm-ok="${u.organisateur} ? 'Retirer le rôle' : 'Accorder le rôle'"
+                              th:data-confirm-style="${u.organisateur} ? 'danger' : 'primary'"
+                              data-confirm-title="Rôle Organisateur">
+                            <button class="btn btn--ghost btn--sm" type="submit">
+                                <i class="ph-bold" th:classappend="${u.organisateur} ? 'ph-user-minus' : 'ph-user-plus'"></i>
+                                <span th:text="${u.organisateur} ? 'Retirer Organisateur' : 'Rendre Organisateur'">Rendre Organisateur</span>
+                            </button>
+                        </form>
+                        <form class="inline-form" th:action="@{/admin/utilisateurs/{id}/actif(id=${u.id})}" method="post"
+                              th:unless="${u.id == #authentication.principal.id}"
+                              th:data-confirm="${u.actif} ? |${u.prenom} ${u.nom} ne pourra plus se connecter. Son historique sera conservé.| : |${u.prenom} ${u.nom} pourra de nouveau se connecter.|"
+                              th:data-confirm-ok="${u.actif} ? 'Désactiver' : 'Réactiver'"
+                              th:data-confirm-style="${u.actif} ? 'danger' : 'primary'"
+                              th:data-confirm-title="${u.actif} ? 'Désactiver ce compte ?' : 'Réactiver ce compte ?'">
+                            <button class="btn btn--sm" type="submit" th:classappend="${u.actif} ? 'btn--danger' : 'btn--secondary'"
+                                    th:text="${u.actif} ? 'Désactiver' : 'Réactiver'">Désactiver</button>
+                        </form>
+                        <span th:if="${u.id == #authentication.principal.id}" class="muted" style="font-size: 13px">Vous</span>
+                    </div>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+</body>
+</html>

@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="fr-CA"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <meta name="theme-color" content="#F7F6F3">
+    <title layout:title-pattern="$CONTENT_TITLE · GG'Événements">GG'Événements</title>
+    <link rel="icon" type="image/svg+xml" th:href="@{/favicon.svg}">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;1,6..72,400;1,6..72,600&display=swap">
+    <link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2.1.1/src/bold/style.css">
+    <link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2.1.1/src/fill/style.css">
+    <link rel="stylesheet" th:href="@{/css/app.css}">
+</head>
+<body>
+
+<header class="nav" sec:authorize="isAuthenticated()">
+    <div class="nav__inner">
+        <a class="brand" th:href="@{/evenements}" aria-label="GG'Événements — accueil"><em>GG'</em><span>Événements</span></a>
+
+        <button class="nav__toggle" type="button" aria-label="Ouvrir le menu" aria-expanded="false" aria-controls="nav-panel">
+            <i class="ph-bold ph-list"></i>
+        </button>
+
+        <div class="nav__panel" id="nav-panel">
+            <nav class="nav__links" aria-label="Navigation principale"
+                 th:with="u=${uriCourante ?: ''}">
+                <a class="nav__link" th:href="@{/evenements}"
+                   th:classappend="${u == '/evenements' or (#strings.startsWith(u, '/evenements/') and !#strings.startsWith(u, '/evenements/recherche')) or #strings.startsWith(u, '/clubs/')} ? 'is-active'"
+                   th:attr="aria-current=${u == '/evenements'} ? 'page' : null">
+                    <i class="ph-bold ph-calendar-dots"></i>Événements à venir
+                </a>
+                <a class="nav__link" th:href="@{/mes-evenements}"
+                   th:classappend="${u == '/mes-evenements'} ? 'is-active'"
+                   th:attr="aria-current=${u == '/mes-evenements'} ? 'page' : null">
+                    <i class="ph-bold ph-ticket"></i>Mes événements
+                </a>
+                <a class="nav__link" th:href="@{/evenements/recherche}"
+                   th:classappend="${#strings.startsWith(u, '/evenements/recherche')} ? 'is-active'"
+                   th:attr="aria-current=${#strings.startsWith(u, '/evenements/recherche')} ? 'page' : null">
+                    <i class="ph-bold ph-magnifying-glass"></i>Recherche avancée
+                </a>
+                <a class="nav__link" th:href="@{/organisateur/evenements}" sec:authorize="hasRole('ORGANISATEUR')"
+                   th:classappend="${#strings.startsWith(u, '/organisateur')} ? 'is-active'"
+                   th:attr="aria-current=${#strings.startsWith(u, '/organisateur')} ? 'page' : null">
+                    <i class="ph-bold ph-clipboard-text"></i>Mes événements à organiser
+                </a>
+                <a class="nav__link" th:href="@{/admin}" sec:authorize="hasRole('ADMIN')"
+                   th:classappend="${#strings.startsWith(u, '/admin')} ? 'is-active'"
+                   th:attr="aria-current=${#strings.startsWith(u, '/admin')} ? 'page' : null">
+                    <i class="ph-bold ph-sliders-horizontal"></i>Administration
+                </a>
+            </nav>
+
+            <div class="nav__user">
+                <span class="avatar" aria-hidden="true" th:text="${#authentication.principal.initiales}">CP</span>
+                <span class="nav__name">
+                    <span th:text="${#authentication.principal.nomComplet}">Camille Pelletier</span>
+                    <small th:text="${#authorization.expression('hasRole(''ADMIN'')')} ? 'Administration' : (${#authorization.expression('hasRole(''ORGANISATEUR'')')} ? 'Organisation' : 'Étudiant·e')">Étudiant·e</small>
+                </span>
+                <form class="inline-form" th:action="@{/logout}" method="post">
+                    <button class="btn btn--ghost btn--sm" type="submit" title="Se déconnecter">
+                        <i class="ph-bold ph-sign-out"></i>Déconnexion
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</header>
+
+<main class="page" th:classappend="${pageClass}" id="contenu">
+    <div th:replace="~{fragments/ui :: flash}"></div>
+    <div layout:fragment="content"></div>
+</main>
+
+<footer class="footer" sec:authorize="isAuthenticated()">
+    <div class="footer__inner">
+        <span>GG'Événements · Service de la vie étudiante, Cégep Gérald-Godin</span>
+        <span>Une question ? <a href="mailto:vie.etudiante@cgodin.qc.ca">vie.etudiante@cgodin.qc.ca</a></span>
+    </div>
+</footer>
+
+<dialog class="modal" id="confirm-dialog" aria-labelledby="confirm-title">
+    <form method="dialog">
+        <div class="modal__body">
+            <div class="modal__icon"><i class="ph-bold ph-warning"></i></div>
+            <h2 class="modal__title" id="confirm-title" data-slot="title">Confirmer cette action ?</h2>
+            <p class="modal__text" data-slot="text"></p>
+        </div>
+        <div class="modal__actions">
+            <button class="btn btn--secondary" value="cancel" data-slot="cancel">Retour</button>
+            <button class="btn btn--danger" value="ok" data-slot="ok">Confirmer</button>
+        </div>
+    </form>
+</dialog>
+
+<script th:src="@{/js/app.js}" defer></script>
+</body>
+</html>

@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="fr-CA" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout}">
+<head><title>Recherche avancée</title></head>
+<body>
+<div layout:fragment="content">
+
+    <header class="page-head">
+        <div class="page-head__text">
+            <span class="eyebrow">Recherche</span>
+            <h1 class="title">Recherche avancée</h1>
+            <p class="lede">Combinez un mot du titre, une catégorie, un club et une période pour trouver l'événement qui vous intéresse.</p>
+        </div>
+    </header>
+
+    <form class="toolbar" th:action="@{/evenements/recherche}" method="get" th:object="${criteres}" role="search">
+        <div class="field field--grow">
+            <label class="label" for="titre">Titre contient</label>
+            <input class="input" type="search" id="titre" th:field="*{titre}" placeholder="ex. impro, randonnée, atelier…" maxlength="150">
+        </div>
+        <div class="field">
+            <label class="label" for="categorie">Catégorie</label>
+            <select class="select" id="categorie" th:field="*{categorie}">
+                <option value="">Toutes</option>
+                <option th:each="c : ${categories}" th:value="${c.id}" th:text="${c.nom}">Sport</option>
+            </select>
+        </div>
+        <div class="field">
+            <label class="label" for="club">Club organisateur</label>
+            <select class="select" id="club" th:field="*{club}">
+                <option value="">Tous</option>
+                <option th:each="c : ${clubs}" th:value="${c.id}" th:text="${c.nom}">Club</option>
+            </select>
+        </div>
+        <div class="field">
+            <label class="label" for="du">Du</label>
+            <input class="input" type="date" id="du" th:field="*{du}">
+        </div>
+        <div class="field">
+            <label class="label" for="au">Au</label>
+            <input class="input" type="date" id="au" th:field="*{au}">
+        </div>
+        <div class="field">
+            <label class="label" for="tri">Trier par</label>
+            <select class="select" id="tri" th:field="*{tri}">
+                <option value="date">Date de début</option>
+                <option value="titre">Titre (A à Z)</option>
+                <option value="places">Places restantes</option>
+            </select>
+        </div>
+        <div class="toolbar__actions">
+            <button class="btn btn--primary" type="submit"><i class="ph-bold ph-magnifying-glass"></i>Rechercher</button>
+            <a class="btn btn--secondary" th:href="@{/evenements/recherche}"><i class="ph-bold ph-arrow-counter-clockwise"></i>Réinitialiser les filtres</a>
+        </div>
+    </form>
+
+    <div class="result-meta">
+        <span>
+            <strong class="mono" th:text="${page.totalElements}">3</strong>
+            <span th:text="${page.totalElements == 1} ? 'résultat' : 'résultats'">résultats</span>
+            <th:block th:if="${criteres.filtre}">pour vos critères</th:block>
+            <th:block th:unless="${criteres.filtre}">— tous les événements à venir</th:block>
+        </span>
+    </div>
+
+    <div class="grid" th:unless="${page.empty}">
+        <th:block th:each="e, it : ${page.content}"><article th:replace="~{fragments/ui :: carte(${e}, ${it.index})}"></article></th:block>
+    </div>
+
+    <div class="empty" th:if="${page.empty}">
+        <i class="ph-bold ph-magnifying-glass"></i>
+        <h3>Aucun résultat</h3>
+        <p>Aucun événement à venir ne correspond à ces critères. Élargissez la période ou retirez un filtre.</p>
+        <a class="btn btn--secondary" th:href="@{/evenements/recherche}">Réinitialiser les filtres</a>
+    </div>
+
+    <nav th:replace="~{fragments/ui :: pagination(${page})}"></nav>
+</div>
+</body>
+</html>

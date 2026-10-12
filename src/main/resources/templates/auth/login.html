@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="fr-CA" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <meta name="theme-color" content="#1F2326">
+    <title>Connexion · GG'Événements</title>
+    <link rel="icon" type="image/svg+xml" th:href="@{/favicon.svg}">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;1,6..72,400;1,6..72,600&display=swap">
+    <link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2.1.1/src/bold/style.css">
+    <link rel="stylesheet" th:href="@{/css/app.css}">
+</head>
+<body>
+<div class="auth">
+    <aside class="auth__side">
+        <a class="brand" th:href="@{/login}"><em>GG'</em><span>Événements</span></a>
+        <div>
+            <p class="auth__quote">Tous les événements du cégep, <em>au même endroit.</em></p>
+            <div class="auth__chips" aria-hidden="true">
+                <span>Soirées thématiques</span><span>Tournois</span><span>Ateliers</span><span>Conférences</span><span>Sorties culturelles</span>
+            </div>
+        </div>
+        <p class="auth__foot">Service de la vie étudiante · Cégep Gérald-Godin</p>
+    </aside>
+
+    <main class="auth__main">
+        <form class="auth__form" th:action="@{/login}" method="post" novalidate>
+            <h1>Connexion</h1>
+            <p>Utilisez votre courriel du cégep et votre mot de passe.</p>
+
+            <div class="flash flash--erreur" role="alert" th:if="${param.erreur}">
+                <i class="ph-bold ph-warning-circle"></i><p>Identifiants invalides</p>
+            </div>
+            <div class="flash flash--erreur" role="alert" th:if="${param.desactive}">
+                <i class="ph-bold ph-lock-simple"></i><p>Ce compte a été désactivé — contactez la Vie étudiante</p>
+            </div>
+            <div class="flash flash--succes" role="status" th:if="${param.deconnexion}">
+                <i class="ph-bold ph-check-circle"></i><p>Vous êtes maintenant déconnecté(e).</p>
+            </div>
+
+            <div class="field">
+                <label class="label" for="courriel">Courriel</label>
+                <input class="input" type="email" id="courriel" name="courriel" required autofocus
+                       autocomplete="username" placeholder="prenom.nom@cgodin.qc.ca">
+            </div>
+            <div class="field">
+                <label class="label" for="motDePasse">Mot de passe</label>
+                <input class="input" type="password" id="motDePasse" name="motDePasse" required
+                       autocomplete="current-password">
+            </div>
+            <button class="btn btn--primary btn--lg btn--block" type="submit">
+                Se connecter <i class="ph-bold ph-arrow-right"></i>
+            </button>
+        </form>
+    </main>
+</div>
+</body>
+</html>

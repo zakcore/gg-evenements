@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="fr-CA" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout}">
+<head><title>Inscriptions</title></head>
+<body>
+<div layout:fragment="content" th:with="e=${evenement}">
+
+    <a class="back" th:href="@{/organisateur/evenements}"><i class="ph-bold ph-arrow-left"></i>Retour à mes événements</a>
+
+    <header class="page-head">
+        <div class="page-head__text">
+            <span class="eyebrow">Gestion des inscriptions</span>
+            <h1 class="title" th:text="${e.titre}">Titre</h1>
+            <p class="lede">
+                <span th:text="${#temporals.format(e.dateDebut, 'EEEE d MMMM yyyy, HH''h''mm')}">date</span> ·
+                <span th:text="${e.lieu.nom}">lieu</span>
+            </p>
+        </div>
+        <div class="actions"><th:block th:replace="~{fragments/ui :: statut(${e})}"></th:block></div>
+    </header>
+
+    <div class="kpis" style="margin-bottom: 40px">
+        <div class="kpi"><span class="kpi__label"><i class="ph-bold ph-check-circle"></i>Confirmées</span>
+            <span class="kpi__value" th:text="${confirmees.size()}">0</span>
+            <span class="kpi__note" th:text="|sur ${e.capaciteMax} places|">sur 40 places</span></div>
+        <div class="kpi"><span class="kpi__label"><i class="ph-bold ph-hourglass-medium"></i>En liste d'attente</span>
+            <span class="kpi__value" th:text="${enAttente.size()}">0</span>
+            <span class="kpi__note">promues automatiquement si une place se libère</span></div>
+        <div class="kpi"><span class="kpi__label"><i class="ph-bold ph-user-check"></i>Présences confirmées</span>
+            <span class="kpi__value" th:text="${#lists.size(confirmees.?[presenceConfirmee])}">0</span>
+            <span class="kpi__note">marquées le jour de l'événement</span></div>
+        <div class="kpi"><span class="kpi__label"><i class="ph-bold ph-chart-pie-slice"></i>Remplissage</span>
+            <span class="kpi__value"><th:block th:text="${e.tauxRemplissage}">0</th:block><small>%</small></span>
+            <span class="kpi__note" th:text="${e.complet} ? 'Complet' : |${e.placesRestantes} place(s) libre(s)|">places</span></div>
+    </div>
+
+    <!-- Confirmées, avec case « Présence confirmée » -->
+    <section class="section" aria-labelledby="titre-confirmees">
+        <form th:action="@{/organisateur/evenements/{id}/presences(id=${e.id})}" method="post">
+            <div class="section__head">
+                <h2 class="section-title" id="titre-confirmees">
+                    <span class="badge badge--vert"><i class="ph-bold ph-check"></i>Confirmé</span>
+                    Participants confirmés <span class="count" th:text="${confirmees.size()}">0</span>
+                </h2>
+                <button class="btn btn--primary btn--sm" type="submit" th:unless="${confirmees.isEmpty() or e.annule}">
+                    <i class="ph-bold ph-floppy-disk"></i>Enregistrer les présences</button>
+            </div>
+
+            <div class="table-wrap" th:unless="${confirmees.isEmpty()}">
+                <table class="table">
+                    <thead>
+                    <tr>
+                        <th scope="col" style="width: 48px">#</th>
+                        <th scope="col">Participant</th>
+                        <th scope="col">Inscrit(e) le</th>
+                        <th scope="col" class="num">Présence confirmée</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="i, it : ${confirmees}">
+                        <td class="mono muted" th:text="${it.count}">1</td>
+                        <td>
+                            <div class="person">
+                                <span class="avatar" th:text="${i.utilisateur.initiales}">CP</span>
+                                <div><strong th:text="${i.utilisateur.nomComplet}">Nom</strong>
+                                    <small th:text="${i.utilisateur.courriel}">courriel</small></div>
+                            </div>
+                        </td>
+                        <td class="nowrap muted" th:text="${#temporals.format(i.dateInscription, 'd MMM yyyy, HH''h''mm')}">date</td>
+                        <td class="num">
+                            <label class="check">
+                                <span class="sr-only" th:text="|Présence confirmée pour ${i.utilisateur.nomComplet}|"></span>
+                                <input type="checkbox" name="presents" th:value="${i.id}" th:checked="${i.presenceConfirmee}" th:disabled="${e.annule}">
+                            </label>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="empty" th:if="${confirmees.isEmpty()}">
+                <i class="ph-bold ph-users"></i>
+                <h3>Aucune inscription confirmée</h3>
+                <p>Les inscriptions apparaîtront ici au fur et à mesure.</p>
+            </div>
+        </form>
+    </section>
+
+    <!-- Liste d'attente -->
+    <section class="section" aria-labelledby="titre-attente">
+        <div class="section__head">
+            <h2 class="section-title" id="titre-attente">
+                <span class="badge badge--orange"><i class="ph-bold ph-hourglass-medium"></i>En attente</span>
+                Liste d'attente <span class="count" th:text="${enAttente.size()}">0</span>
+            </h2>
+        </div>
+        <div class="table-wrap" th:unless="${enAttente.isEmpty()}">
+            <table class="table">
+                <thead>
+                <tr>
+                    <th scope="col" style="width: 48px">Rang</th>
+                    <th scope="col">Personne</th>
+                    <th scope="col">Inscrit(e) le</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="i, it : ${enAttente}">
+                    <td class="mono" th:text="${it.count}">1</td>
+                    <td>
+                        <div class="person">
+                            <span class="avatar" th:text="${i.utilisateur.initiales}">CP</span>
+                            <div><strong th:text="${i.utilisateur.nomComplet}">Nom</strong>
+                                <small th:text="${i.utilisateur.courriel}">courriel</small></div>
+                        </div>
+                    </td>
+                    <td class="nowrap muted" th:text="${#temporals.format(i.dateInscription, 'd MMM yyyy, HH''h''mm')}">date</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+        <div class="empty" th:if="${enAttente.isEmpty()}">
+            <i class="ph-bold ph-hourglass"></i>
+            <h3>Liste d'attente vide</h3>
+            <p>Lorsque l'événement est complet, les nouvelles inscriptions s'ajoutent ici, par ordre d'arrivée.</p>
+        </div>
+    </section>
+</div>
+</body>
+</html>

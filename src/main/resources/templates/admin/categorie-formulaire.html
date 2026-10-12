@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="fr-CA" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout}">
+<head><title th:text="${categorie.id == null} ? 'Nouvelle catégorie' : 'Modifier la catégorie'">Catégorie</title></head>
+<body>
+<div layout:fragment="content" style="max-width: 640px; margin: 0 auto"
+     th:with="action=${categorie.id == null} ? @{/admin/categories/nouvelle} : @{/admin/categories/{id}/modifier(id=${categorie.id})}">
+
+    <a class="back" th:href="@{/admin/referentiels}"><i class="ph-bold ph-arrow-left"></i>Retour aux catégories et lieux</a>
+
+    <header class="page-head">
+        <div class="page-head__text">
+            <span class="eyebrow">Administration · Catégories</span>
+            <h1 class="title" th:text="${categorie.id == null} ? 'Nouvelle catégorie' : 'Modifier la catégorie'">Nouvelle catégorie</h1>
+        </div>
+    </header>
+
+    <form class="form-card" th:action="${action}" th:object="${categorie}" method="post" novalidate>
+        <div class="field">
+            <label class="label" for="nom">Nom <span class="req" aria-hidden="true">*</span></label>
+            <input class="input" id="nom" th:field="*{nom}" maxlength="60" required
+                   th:classappend="${#fields.hasErrors('nom')} ? 'is-invalid'" placeholder="ex. Bénévolat">
+            <p th:replace="~{fragments/ui :: erreur('nom')}"></p>
+        </div>
+        <div class="field">
+            <label class="label" for="description">Description <span class="opt">(facultatif)</span></label>
+            <textarea class="textarea" id="description" th:field="*{description}" rows="3" maxlength="500"
+                      th:classappend="${#fields.hasErrors('description')} ? 'is-invalid'"></textarea>
+            <p th:replace="~{fragments/ui :: erreur('description')}"></p>
+        </div>
+        <div class="field">
+            <label class="label" for="couleur">Couleur de la pastille <span class="req" aria-hidden="true">*</span></label>
+            <input class="input" type="color" id="couleur" th:field="*{couleur}"
+                   th:classappend="${#fields.hasErrors('couleur')} ? 'is-invalid'">
+            <span class="hint">Préférez une teinte sobre et assez foncée pour rester lisible sur fond blanc.</span>
+            <p th:replace="~{fragments/ui :: erreur('couleur')}"></p>
+        </div>
+        <div class="form-actions">
+            <a class="btn btn--ghost" th:href="@{/admin/referentiels}">Retour</a>
+            <button class="btn btn--primary" type="submit"><i class="ph-bold ph-check"></i>Enregistrer</button>
+        </div>
+    </form>
+</div>
+</body>
+</html>

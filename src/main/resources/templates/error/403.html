@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="fr-CA" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout}">
+<head><title>Accès refusé</title></head>
+<body>
+<div layout:fragment="content">
+    <section class="error-page">
+        <div class="error-page__code">403</div>
+        <h1>Accès refusé</h1>
+        <p th:text="${message != null and !#strings.isEmpty(message) ? message : 'Vous n’avez pas les droits nécessaires pour consulter cette page ou effectuer cette action.'}">Vous n’avez pas les droits nécessaires pour consulter cette page ou effectuer cette action.</p>
+        <div class="actions">
+            <a class="btn btn--primary" th:href="@{/evenements}"><i class="ph-bold ph-calendar-dots"></i>Retour aux événements</a>
+            <a class="btn btn--secondary" href="javascript:history.back()">Page précédente</a>
+        </div>
+    </section>
+</div>
+</body>
+</html>
