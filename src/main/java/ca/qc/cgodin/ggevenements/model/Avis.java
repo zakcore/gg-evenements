@@ -1,27 +1,31 @@
 package ca.qc.cgodin.ggevenements.model;
 
 import jakarta.persistence.*;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 
 import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "avis",
-        uniqueConstraints = @UniqueConstraint(name = "uq_avis", columnNames = {"evenement_id", "utilisateur_id"}))
+        uniqueConstraints = @UniqueConstraint(name = "uq_avis", columnNames = {"id_evenement", "id_utilisateur"}))
 public class Avis {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    @Column(name = "id_avis")
+    private Integer id;
 
     @ManyToOne(optional = false)
-    @JoinColumn(name = "evenement_id")
+    @JoinColumn(name = "id_evenement")
     private Evenement evenement;
 
     @ManyToOne(optional = false)
-    @JoinColumn(name = "utilisateur_id")
+    @JoinColumn(name = "id_utilisateur")
     private Utilisateur utilisateur;
 
-    @Column(nullable = false)
+    @JdbcTypeCode(SqlTypes.TINYINT)
+    @Column(nullable = false, columnDefinition = "tinyint")
     private int note;
 
     @Column(length = 500)
@@ -41,7 +45,7 @@ public class Avis {
         this.dateAvis = LocalDateTime.now();
     }
 
-    public Long getId() {
+    public Integer getId() {
         return id;
     }
 

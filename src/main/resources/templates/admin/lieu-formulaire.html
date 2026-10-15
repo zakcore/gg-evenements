@@ -19,16 +19,16 @@
     <form class="form-card" th:action="${action}" th:object="${lieu}" method="post" novalidate>
         <div class="field">
             <label class="label" for="nom">Nom <span class="req" aria-hidden="true">*</span></label>
-            <input class="input" id="nom" th:field="*{nom}" maxlength="100" required
+            <input class="input" id="nom" th:field="*{nom}" maxlength="80" required
                    th:classappend="${#fields.hasErrors('nom')} ? 'is-invalid'" placeholder="ex. Salle polyvalente B-110">
             <p th:replace="~{fragments/ui :: erreur('nom')}"></p>
         </div>
         <div class="form-grid">
             <div class="field">
                 <label class="label" for="campus">Campus <span class="req" aria-hidden="true">*</span></label>
-                <input class="input" id="campus" th:field="*{campus}" maxlength="100" required list="campus-connus"
+                <input class="input" id="campus" th:field="*{campus}" maxlength="50" required list="campus-connus"
                        th:classappend="${#fields.hasErrors('campus')} ? 'is-invalid'" placeholder="ex. Campus principal">
-                <datalist id="campus-connus"><option value="Campus principal"><option value="Hors campus"></datalist>
+                <datalist id="campus-connus"><option value="Pavillon principal"><option value="Pavillon sportif"><option value="Pavillon des arts"><option value="Hors campus"></datalist>
                 <p th:replace="~{fragments/ui :: erreur('campus')}"></p>
             </div>
             <div class="field">
@@ -40,7 +40,7 @@
         </div>
         <div class="field">
             <label class="label" for="adresse">Adresse <span class="req" aria-hidden="true">*</span></label>
-            <input class="input" id="adresse" th:field="*{adresse}" maxlength="200" required
+            <input class="input" id="adresse" th:field="*{adresse}" maxlength="150" required
                    th:classappend="${#fields.hasErrors('adresse')} ? 'is-invalid'" placeholder="15615, boulevard Gouin Ouest, Montréal">
             <p th:replace="~{fragments/ui :: erreur('adresse')}"></p>
         </div>

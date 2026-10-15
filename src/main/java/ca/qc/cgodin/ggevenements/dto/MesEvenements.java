@@ -6,9 +6,9 @@ import java.util.List;
 import java.util.Set;
 
 /** Données de la page « Mes événements » : deux sous-listes et les événements déjà évalués. */
-public record MesEvenements(List<Inscription> aVenir, List<Inscription> passes, Set<Long> evenementsAvecAvis) {
+public record MesEvenements(List<Inscription> aVenir, List<Inscription> passes, Set<Integer> evenementsAvecAvis) {
 
-    public boolean avisSoumis(Long evenementId) {
+    public boolean avisSoumis(Integer evenementId) {
         return evenementsAvecAvis.contains(evenementId);
     }
 

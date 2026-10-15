@@ -24,8 +24,8 @@ import static org.mockito.Mockito.*;
 @ExtendWith(MockitoExtension.class)
 class InscriptionServiceTest {
 
-    private static final Long EVENEMENT_ID = 1L;
-    private static final Long UTILISATEUR_ID = 7L;
+    private static final Integer EVENEMENT_ID = 1;
+    private static final Integer UTILISATEUR_ID = 7;
 
     @Mock private InscriptionRepository inscriptionRepository;
     @Mock private EvenementRepository evenementRepository;

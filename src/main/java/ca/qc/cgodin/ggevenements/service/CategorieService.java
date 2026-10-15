@@ -26,7 +26,7 @@ public class CategorieService {
         return categorieRepository.findAllByOrderByNomAsc();
     }
 
-    public Categorie trouver(Long id) {
+    public Categorie trouver(Integer id) {
         return categorieRepository.findById(id)
                 .orElseThrow(() -> new RessourceIntrouvableException("Catégorie introuvable."));
     }
@@ -50,7 +50,7 @@ public class CategorieService {
 
     /** Refuse proprement la suppression d'une catégorie encore utilisée, avant toute erreur d'intégrité SQL. */
     @Transactional
-    public void supprimer(Long id) {
+    public void supprimer(Integer id) {
         Categorie categorie = trouver(id);
         if (evenementRepository.existsByCategorieId(id)) {
             throw new RegleAffaireException("La catégorie « " + categorie.getNom()

@@ -18,13 +18,16 @@ public class ClubService {
 
     private final ClubRepository clubRepository;
     private final UtilisateurService utilisateurService;
+    private final FichierService fichierService;
 
-    public ClubService(ClubRepository clubRepository, UtilisateurService utilisateurService) {
+    public ClubService(ClubRepository clubRepository, UtilisateurService utilisateurService,
+                       FichierService fichierService) {
         this.clubRepository = clubRepository;
         this.utilisateurService = utilisateurService;
+        this.fichierService = fichierService;
     }
 
-    public Club trouver(Long id) {
+    public Club trouver(Integer id) {
         return clubRepository.findById(id)
                 .orElseThrow(() -> new RessourceIntrouvableException("Club introuvable."));
     }
@@ -38,8 +41,8 @@ public class ClubService {
         return clubRepository.findAllByOrderByNomAsc();
     }
 
-    public Optional<Club> clubDuResponsable(Long utilisateurId) {
-        return clubRepository.findByResponsableId(utilisateurId);
+    public Optional<Club> clubDuResponsable(Integer utilisateurId) {
+        return clubRepository.findFirstByResponsableIdOrderByActifDescNomAsc(utilisateurId);
     }
 
     @Transactional
@@ -53,7 +56,7 @@ public class ClubService {
     }
 
     @Transactional
-    public Club modifier(Long id, ClubForm form) {
+    public Club modifier(Integer id, ClubForm form) {
         Club club = trouver(id);
         if (clubRepository.existsByNomIgnoreCaseAndIdNot(form.getNom().trim(), id)) {
             throw new RegleAffaireException("nom", "Un club porte déjà ce nom.");
@@ -63,7 +66,7 @@ public class ClubService {
     }
 
     @Transactional
-    public Club basculerActif(Long id) {
+    public Club basculerActif(Integer id) {
         Club club = trouver(id);
         club.setActif(!club.isActif());
         return club;
@@ -75,7 +78,7 @@ public class ClubService {
         if (!responsable.isActif()) {
             throw new RegleAffaireException("responsableId", "Ce compte est désactivé.");
         }
-        clubRepository.findByResponsableId(responsable.getId())
+        clubRepository.findFirstByResponsableIdOrderByActifDescNomAsc(responsable.getId())
                 .filter(autre -> !autre.getId().equals(club.getId()))
                 .ifPresent(autre -> {
                     throw new RegleAffaireException("responsableId",
@@ -86,6 +89,10 @@ public class ClubService {
                 ? null : form.getDescription().trim());
         club.setCourrielContact(form.getCourrielContact().trim());
         club.setResponsable(responsable);
+        String logo = fichierService.enregistrerLogo(form.getLogo());
+        if (logo != null) {
+            club.setLogo(logo);
+        }
         utilisateurService.accorderRoleOrganisateur(responsable);
     }
 }

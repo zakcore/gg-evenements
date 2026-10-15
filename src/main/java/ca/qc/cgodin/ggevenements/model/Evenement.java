@@ -13,12 +13,13 @@ public class Evenement {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    @Column(name = "id_evenement")
+    private Integer id;
 
-    @Column(nullable = false, length = 150)
+    @Column(nullable = false, length = 120)
     private String titre;
 
-    @Column(nullable = false, columnDefinition = "TEXT")
+    @Column(nullable = false, length = 1000)
     private String description;
 
     @Column(name = "date_debut", nullable = false)
@@ -30,7 +31,7 @@ public class Evenement {
     @Column(name = "capacite_max", nullable = false)
     private int capaciteMax;
 
-    @Column(name = "image_affiche")
+    @Column(name = "image_affiche", length = 150)
     private String imageAffiche;
 
     @Enumerated(EnumType.STRING)
@@ -41,32 +42,32 @@ public class Evenement {
     private LocalDateTime dateCreation;
 
     @ManyToOne(optional = false)
-    @JoinColumn(name = "categorie_id")
+    @JoinColumn(name = "id_categorie")
     private Categorie categorie;
 
     @ManyToOne(optional = false)
-    @JoinColumn(name = "lieu_id")
+    @JoinColumn(name = "id_lieu")
     private Lieu lieu;
 
     @ManyToOne(optional = false)
-    @JoinColumn(name = "club_id")
+    @JoinColumn(name = "id_club")
     private Club club;
 
     @ManyToOne(optional = false)
-    @JoinColumn(name = "createur_id")
+    @JoinColumn(name = "id_createur")
     private Utilisateur createur;
 
     /*
      * Compteurs calculés par la base de données (sous-requêtes SQL), en lecture seule.
      * placesRestantes sert aussi au tri « places restantes » de la liste paginée.
      */
-    @Formula("(select count(*) from inscription i where i.evenement_id = id and i.statut = 'CONFIRMEE')")
+    @Formula("(select count(*) from inscription i where i.id_evenement = id_evenement and i.statut = 'CONFIRMEE')")
     private int nbConfirmes;
 
-    @Formula("(select count(*) from inscription i where i.evenement_id = id and i.statut = 'EN_ATTENTE')")
+    @Formula("(select count(*) from inscription i where i.id_evenement = id_evenement and i.statut = 'EN_ATTENTE')")
     private int nbEnAttente;
 
-    @Formula("(capacite_max - (select count(*) from inscription i where i.evenement_id = id and i.statut = 'CONFIRMEE'))")
+    @Formula("(capacite_max - (select count(*) from inscription i where i.id_evenement = id_evenement and i.statut = 'CONFIRMEE'))")
     private int placesRestantes;
 
     /** Terminé lorsque le statut l'indique ou que la date de fin est passée (avant le passage de la tâche planifiée). */
@@ -105,7 +106,7 @@ public class Evenement {
         return imageAffiche == null || imageAffiche.isBlank() ? IMAGE_DEFAUT : imageAffiche;
     }
 
-    public Long getId() {
+    public Integer getId() {
         return id;
     }
 

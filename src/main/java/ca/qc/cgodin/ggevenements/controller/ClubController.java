@@ -20,7 +20,7 @@ public class ClubController {
     }
 
     @GetMapping("/clubs/{id}")
-    public String fiche(@PathVariable Long id, Model model) {
+    public String fiche(@PathVariable Integer id, Model model) {
         model.addAttribute("club", clubService.trouver(id));
         model.addAttribute("aVenir", evenementService.aVenirDuClub(id));
         model.addAttribute("passes", evenementService.passesDuClub(id));

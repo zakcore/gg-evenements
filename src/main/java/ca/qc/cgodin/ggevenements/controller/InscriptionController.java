@@ -22,7 +22,7 @@ public class InscriptionController {
 
     /** Fonctionnalité 5 : un seul clic, aucun formulaire supplémentaire. */
     @PostMapping("/evenements/{id}/inscription")
-    public String inscrire(@PathVariable Long id, @AuthenticationPrincipal UtilisateurDetails utilisateur,
+    public String inscrire(@PathVariable Integer id, @AuthenticationPrincipal UtilisateurDetails utilisateur,
                            RedirectAttributes attributs) {
         try {
             StatutInscription statut = inscriptionService.inscrire(id, utilisateur.getId());
@@ -41,7 +41,7 @@ public class InscriptionController {
 
     /** Fonctionnalité 6 : la confirmation est demandée dans l'interface avant l'envoi de ce formulaire. */
     @PostMapping("/evenements/{id}/desinscription")
-    public String desinscrire(@PathVariable Long id, @RequestParam(defaultValue = "detail") String origine,
+    public String desinscrire(@PathVariable Integer id, @RequestParam(defaultValue = "detail") String origine,
                               @AuthenticationPrincipal UtilisateurDetails utilisateur, RedirectAttributes attributs) {
         try {
             inscriptionService.desinscrire(id, utilisateur.getId());

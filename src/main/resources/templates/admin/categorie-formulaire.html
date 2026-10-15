@@ -19,13 +19,13 @@
     <form class="form-card" th:action="${action}" th:object="${categorie}" method="post" novalidate>
         <div class="field">
             <label class="label" for="nom">Nom <span class="req" aria-hidden="true">*</span></label>
-            <input class="input" id="nom" th:field="*{nom}" maxlength="60" required
+            <input class="input" id="nom" th:field="*{nom}" maxlength="50" required
                    th:classappend="${#fields.hasErrors('nom')} ? 'is-invalid'" placeholder="ex. Bénévolat">
             <p th:replace="~{fragments/ui :: erreur('nom')}"></p>
         </div>
         <div class="field">
             <label class="label" for="description">Description <span class="opt">(facultatif)</span></label>
-            <textarea class="textarea" id="description" th:field="*{description}" rows="3" maxlength="500"
+            <textarea class="textarea" id="description" th:field="*{description}" rows="3" maxlength="150"
                       th:classappend="${#fields.hasErrors('description')} ? 'is-invalid'"></textarea>
             <p th:replace="~{fragments/ui :: erreur('description')}"></p>
         </div>

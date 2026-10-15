@@ -71,14 +71,14 @@ public class OrganisateurController {
     // ----- Fonctionnalité 11 : modification et annulation -----
 
     @GetMapping("/{id}/modifier")
-    public String modifier(@PathVariable Long id, @AuthenticationPrincipal UtilisateurDetails utilisateur, Model model) {
+    public String modifier(@PathVariable Integer id, @AuthenticationPrincipal UtilisateurDetails utilisateur, Model model) {
         Evenement evenement = evenementService.trouverPourGestion(id, utilisateur.getId());
         model.addAttribute("evenementForm", EvenementForm.depuis(evenement));
         return afficherFormulaire(model, utilisateur, evenement);
     }
 
     @PostMapping("/{id}/modifier")
-    public String enregistrer(@PathVariable Long id, @Valid @ModelAttribute("evenementForm") EvenementForm form,
+    public String enregistrer(@PathVariable Integer id, @Valid @ModelAttribute("evenementForm") EvenementForm form,
                               BindingResult resultat, @AuthenticationPrincipal UtilisateurDetails utilisateur,
                               Model model, RedirectAttributes attributs) {
         Evenement evenement = evenementService.trouverPourGestion(id, utilisateur.getId());
@@ -95,7 +95,7 @@ public class OrganisateurController {
     }
 
     @PostMapping("/{id}/annuler")
-    public String annuler(@PathVariable Long id, @AuthenticationPrincipal UtilisateurDetails utilisateur,
+    public String annuler(@PathVariable Integer id, @AuthenticationPrincipal UtilisateurDetails utilisateur,
                           RedirectAttributes attributs) {
         try {
             Evenement evenement = evenementService.annuler(id, utilisateur.getId());
@@ -109,7 +109,7 @@ public class OrganisateurController {
     // ----- Fonctionnalité 12 : gestion des inscriptions -----
 
     @GetMapping("/{id}/inscriptions")
-    public String inscriptions(@PathVariable Long id, @AuthenticationPrincipal UtilisateurDetails utilisateur,
+    public String inscriptions(@PathVariable Integer id, @AuthenticationPrincipal UtilisateurDetails utilisateur,
                                Model model) {
         model.addAttribute("evenement", evenementService.trouverPourGestion(id, utilisateur.getId()));
         model.addAttribute("confirmees", inscriptionService.confirmees(id, utilisateur.getId()));
@@ -118,7 +118,7 @@ public class OrganisateurController {
     }
 
     @PostMapping("/{id}/presences")
-    public String presences(@PathVariable Long id, @RequestParam(name = "presents", required = false) List<Long> presents,
+    public String presences(@PathVariable Integer id, @RequestParam(name = "presents", required = false) List<Integer> presents,
                             @AuthenticationPrincipal UtilisateurDetails utilisateur, RedirectAttributes attributs) {
         int nb = inscriptionService.enregistrerPresences(id, utilisateur.getId(),
                 presents == null ? new HashSet<>() : new HashSet<>(presents));

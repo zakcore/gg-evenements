@@ -31,7 +31,7 @@ public class StatistiqueService {
             parStatut.put((StatutEvenement) ligne[0], (Long) ligne[1]);
         }
         List<Statistiques.ClubActif> clubs = evenementRepository.clubsLesPlusActifs(PageRequest.of(0, 5)).stream()
-                .map(l -> new Statistiques.ClubActif((Long) l[0], (String) l[1], (Long) l[2]))
+                .map(l -> new Statistiques.ClubActif((Integer) l[0], (String) l[1], (Long) l[2]))
                 .toList();
         return new Statistiques(
                 parStatut.getOrDefault(StatutEvenement.PLANIFIE, 0L),

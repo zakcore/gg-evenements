@@ -12,21 +12,22 @@ public class Lieu {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    @Column(name = "id_lieu")
+    private Integer id;
 
     @NotBlank(message = "Le nom est obligatoire.")
-    @Size(max = 100, message = "Le nom ne doit pas dépasser 100 caractères.")
-    @Column(nullable = false, length = 100)
+    @Size(max = 80, message = "Le nom ne doit pas dépasser 80 caractères.")
+    @Column(nullable = false, length = 80)
     private String nom;
 
     @NotBlank(message = "Le campus est obligatoire.")
-    @Size(max = 100, message = "Le campus ne doit pas dépasser 100 caractères.")
-    @Column(nullable = false, length = 100)
+    @Size(max = 50, message = "Le campus ne doit pas dépasser 50 caractères.")
+    @Column(nullable = false, length = 50)
     private String campus;
 
     @NotBlank(message = "L'adresse est obligatoire.")
-    @Size(max = 200, message = "L'adresse ne doit pas dépasser 200 caractères.")
-    @Column(nullable = false, length = 200)
+    @Size(max = 150, message = "L'adresse ne doit pas dépasser 150 caractères.")
+    @Column(nullable = false, length = 150)
     private String adresse;
 
     @NotNull(message = "La capacité maximale est obligatoire.")
@@ -34,11 +35,11 @@ public class Lieu {
     @Column(name = "capacite_max", nullable = false)
     private Integer capaciteMax;
 
-    public Long getId() {
+    public Integer getId() {
         return id;
     }
 
-    public void setId(Long id) {
+    public void setId(Integer id) {
         this.id = id;
     }
 

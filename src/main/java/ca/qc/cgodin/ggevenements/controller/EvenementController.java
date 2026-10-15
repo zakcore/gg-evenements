@@ -47,7 +47,7 @@ public class EvenementController {
 
     /** Fonctionnalité 4 : détail d'un événement. */
     @GetMapping("/evenements/{id}")
-    public String detail(@PathVariable Long id, @AuthenticationPrincipal UtilisateurDetails utilisateur, Model model) {
+    public String detail(@PathVariable Integer id, @AuthenticationPrincipal UtilisateurDetails utilisateur, Model model) {
         Evenement evenement = evenementService.trouver(id);
         model.addAttribute("evenement", evenement);
         model.addAttribute("inscription", inscriptionService.inscriptionDe(id, utilisateur.getId()).orElse(null));

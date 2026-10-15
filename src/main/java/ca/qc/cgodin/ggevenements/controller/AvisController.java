@@ -26,7 +26,7 @@ public class AvisController {
     }
 
     @GetMapping("/evenements/{id}/avis")
-    public String formulaire(@PathVariable Long id, @AuthenticationPrincipal UtilisateurDetails utilisateur,
+    public String formulaire(@PathVariable Integer id, @AuthenticationPrincipal UtilisateurDetails utilisateur,
                              Model model, RedirectAttributes attributs) {
         try {
             model.addAttribute("evenement", avisService.verifierAdmissible(id, utilisateur.getId()));
@@ -39,7 +39,7 @@ public class AvisController {
     }
 
     @PostMapping("/evenements/{id}/avis")
-    public String soumettre(@PathVariable Long id, @Valid @ModelAttribute("avisForm") AvisForm form,
+    public String soumettre(@PathVariable Integer id, @Valid @ModelAttribute("avisForm") AvisForm form,
                             BindingResult resultat, @AuthenticationPrincipal UtilisateurDetails utilisateur,
                             Model model, RedirectAttributes attributs) {
         try {

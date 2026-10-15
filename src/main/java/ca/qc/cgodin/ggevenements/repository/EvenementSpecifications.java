@@ -32,12 +32,12 @@ public final class EvenementSpecifications {
         return (root, query, cb) -> cb.like(cb.lower(root.get("titre")), motif, '\\');
     }
 
-    public static Specification<Evenement> categorie(Long categorieId) {
+    public static Specification<Evenement> categorie(Integer categorieId) {
         return categorieId == null ? null
                 : (root, query, cb) -> cb.equal(root.get("categorie").get("id"), categorieId);
     }
 
-    public static Specification<Evenement> club(Long clubId) {
+    public static Specification<Evenement> club(Integer clubId) {
         return clubId == null ? null
                 : (root, query, cb) -> cb.equal(root.get("club").get("id"), clubId);
     }

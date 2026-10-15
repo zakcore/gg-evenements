@@ -1,6 +1,7 @@
 -- =====================================================================
 --  GG'Événements — Schéma de la base de données (MySQL 8)
---  Exécuter ce script en premier, puis donnees.sql
+--  Conforme au document « GG'Événements — Schéma de la base de données »
+--  (9 tables). Exécuter ce script en premier, puis donnees.sql.
 -- =====================================================================
 
 DROP DATABASE IF EXISTS gg_evenements;
@@ -8,128 +9,145 @@ CREATE DATABASE gg_evenements CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 USE gg_evenements;
 
 -- ---------------------------------------------------------------------
---  Sécurité : utilisateurs et rôles (relation plusieurs-à-plusieurs)
+--  1. role — rôles applicatifs : PUBLIC, ORGANISATEUR, ADMIN
 -- ---------------------------------------------------------------------
 CREATE TABLE role (
-    id   BIGINT      NOT NULL AUTO_INCREMENT,
-    nom  VARCHAR(40) NOT NULL,
-    CONSTRAINT pk_role PRIMARY KEY (id),
-    CONSTRAINT uq_role_nom UNIQUE (nom)
+    id_role      INT          NOT NULL AUTO_INCREMENT,
+    nom_role     VARCHAR(30)  NOT NULL,
+    description  VARCHAR(150),
+    CONSTRAINT pk_role PRIMARY KEY (id_role),
+    CONSTRAINT uq_role_nom UNIQUE (nom_role)
 ) ENGINE = InnoDB;
 
+-- ---------------------------------------------------------------------
+--  2. utilisateur — comptes de tous les usagers
+-- ---------------------------------------------------------------------
 CREATE TABLE utilisateur (
-    id             BIGINT       NOT NULL AUTO_INCREMENT,
-    prenom         VARCHAR(60)  NOT NULL,
-    nom            VARCHAR(60)  NOT NULL,
-    courriel       VARCHAR(120) NOT NULL,
-    mot_de_passe   VARCHAR(100) NOT NULL,          -- hachage BCrypt, jamais en clair
-    actif          BOOLEAN      NOT NULL DEFAULT TRUE,
-    date_creation  DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    CONSTRAINT pk_utilisateur PRIMARY KEY (id),
+    id_utilisateur    INT          NOT NULL AUTO_INCREMENT,
+    prenom            VARCHAR(50)  NOT NULL,
+    nom               VARCHAR(50)  NOT NULL,
+    courriel          VARCHAR(100) NOT NULL,
+    mot_passe         VARCHAR(60)  NOT NULL,          -- hachage BCrypt, jamais en clair
+    actif             TINYINT(1)   NOT NULL DEFAULT 1,
+    date_inscription  DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT pk_utilisateur PRIMARY KEY (id_utilisateur),
     CONSTRAINT uq_utilisateur_courriel UNIQUE (courriel)
 ) ENGINE = InnoDB;
 
+-- ---------------------------------------------------------------------
+--  3. utilisateur_role — association plusieurs-à-plusieurs (PK composite)
+-- ---------------------------------------------------------------------
 CREATE TABLE utilisateur_role (
-    utilisateur_id BIGINT NOT NULL,
-    role_id        BIGINT NOT NULL,
-    CONSTRAINT pk_utilisateur_role PRIMARY KEY (utilisateur_id, role_id),
-    CONSTRAINT fk_ur_utilisateur FOREIGN KEY (utilisateur_id) REFERENCES utilisateur (id),
-    CONSTRAINT fk_ur_role        FOREIGN KEY (role_id)        REFERENCES role (id)
+    id_utilisateur  INT NOT NULL,
+    id_role         INT NOT NULL,
+    CONSTRAINT pk_utilisateur_role PRIMARY KEY (id_utilisateur, id_role),
+    CONSTRAINT fk_ur_utilisateur FOREIGN KEY (id_utilisateur) REFERENCES utilisateur (id_utilisateur),
+    CONSTRAINT fk_ur_role        FOREIGN KEY (id_role)        REFERENCES role (id_role)
 ) ENGINE = InnoDB;
 
 -- ---------------------------------------------------------------------
---  Référentiels : clubs, catégories, lieux
+--  4. lieu — lieux physiques du collège
 -- ---------------------------------------------------------------------
-CREATE TABLE club (
-    id                BIGINT       NOT NULL AUTO_INCREMENT,
-    nom               VARCHAR(100) NOT NULL,
-    description       VARCHAR(1000),
-    courriel_contact  VARCHAR(120) NOT NULL,
-    responsable_id    BIGINT       NOT NULL,
-    actif             BOOLEAN      NOT NULL DEFAULT TRUE,
-    CONSTRAINT pk_club PRIMARY KEY (id),
-    CONSTRAINT uq_club_nom UNIQUE (nom),
-    CONSTRAINT uq_club_responsable UNIQUE (responsable_id),   -- un responsable gère un seul club
-    CONSTRAINT fk_club_responsable FOREIGN KEY (responsable_id) REFERENCES utilisateur (id)
-) ENGINE = InnoDB;
-
-CREATE TABLE categorie (
-    id           BIGINT       NOT NULL AUTO_INCREMENT,
-    nom          VARCHAR(60)  NOT NULL,
-    description  VARCHAR(500),
-    couleur      VARCHAR(7)   NOT NULL,             -- format #RRGGBB
-    CONSTRAINT pk_categorie PRIMARY KEY (id),
-    CONSTRAINT uq_categorie_nom UNIQUE (nom)
-) ENGINE = InnoDB;
-
 CREATE TABLE lieu (
-    id            BIGINT       NOT NULL AUTO_INCREMENT,
-    nom           VARCHAR(100) NOT NULL,
-    campus        VARCHAR(100) NOT NULL,
-    adresse       VARCHAR(200) NOT NULL,
+    id_lieu       INT          NOT NULL AUTO_INCREMENT,
+    nom           VARCHAR(80)  NOT NULL,
+    campus        VARCHAR(50)  NOT NULL,
+    adresse       VARCHAR(150) NOT NULL,
     capacite_max  INT          NOT NULL,
-    CONSTRAINT pk_lieu PRIMARY KEY (id),
+    CONSTRAINT pk_lieu PRIMARY KEY (id_lieu),
     CONSTRAINT ck_lieu_capacite CHECK (capacite_max > 0)
 ) ENGINE = InnoDB;
 
 -- ---------------------------------------------------------------------
---  Événements
+--  5. categorie — classement et filtres des événements
+-- ---------------------------------------------------------------------
+CREATE TABLE categorie (
+    id_categorie  INT          NOT NULL AUTO_INCREMENT,
+    nom           VARCHAR(50)  NOT NULL,
+    description   VARCHAR(150),
+    couleur       VARCHAR(7)   NOT NULL,              -- format #RRGGBB
+    CONSTRAINT pk_categorie PRIMARY KEY (id_categorie),
+    CONSTRAINT uq_categorie_nom UNIQUE (nom)
+) ENGINE = InnoDB;
+
+-- ---------------------------------------------------------------------
+--  6. club — clubs et associations étudiantes
+-- ---------------------------------------------------------------------
+CREATE TABLE club (
+    id_club           INT          NOT NULL AUTO_INCREMENT,
+    nom               VARCHAR(80)  NOT NULL,
+    description       VARCHAR(300),
+    courriel_contact  VARCHAR(100) NOT NULL,
+    logo              VARCHAR(150),
+    id_responsable    INT          NOT NULL,
+    actif             TINYINT(1)   NOT NULL DEFAULT 1,
+    CONSTRAINT pk_club PRIMARY KEY (id_club),
+    CONSTRAINT uq_club_nom UNIQUE (nom),
+    CONSTRAINT fk_club_responsable FOREIGN KEY (id_responsable) REFERENCES utilisateur (id_utilisateur)
+) ENGINE = InnoDB;
+
+-- ---------------------------------------------------------------------
+--  7. evenement — table centrale
 -- ---------------------------------------------------------------------
 CREATE TABLE evenement (
-    id              BIGINT       NOT NULL AUTO_INCREMENT,
-    titre           VARCHAR(150) NOT NULL,
-    description     TEXT         NOT NULL,
-    date_debut      DATETIME     NOT NULL,
-    date_fin        DATETIME     NOT NULL,
-    capacite_max    INT          NOT NULL,
-    image_affiche   VARCHAR(255),
-    statut          VARCHAR(20)  NOT NULL DEFAULT 'PLANIFIE',
-    date_creation   DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    categorie_id    BIGINT       NOT NULL,
-    lieu_id         BIGINT       NOT NULL,
-    club_id         BIGINT       NOT NULL,
-    createur_id     BIGINT       NOT NULL,
-    CONSTRAINT pk_evenement PRIMARY KEY (id),
+    id_evenement   INT           NOT NULL AUTO_INCREMENT,
+    titre          VARCHAR(120)  NOT NULL,
+    description    VARCHAR(1000) NOT NULL,
+    id_club        INT           NOT NULL,
+    id_categorie   INT           NOT NULL,
+    id_lieu        INT           NOT NULL,
+    id_createur    INT           NOT NULL,
+    date_debut     DATETIME      NOT NULL,
+    date_fin       DATETIME      NOT NULL,
+    capacite_max   INT           NOT NULL,
+    statut         VARCHAR(20)   NOT NULL DEFAULT 'PLANIFIE',
+    image_affiche  VARCHAR(150),
+    date_creation  DATETIME      NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT pk_evenement PRIMARY KEY (id_evenement),
     CONSTRAINT ck_evenement_capacite CHECK (capacite_max > 0),
     CONSTRAINT ck_evenement_dates    CHECK (date_fin > date_debut),
     CONSTRAINT ck_evenement_statut   CHECK (statut IN ('PLANIFIE', 'ANNULE', 'TERMINE')),
-    CONSTRAINT fk_evenement_categorie FOREIGN KEY (categorie_id) REFERENCES categorie (id),
-    CONSTRAINT fk_evenement_lieu      FOREIGN KEY (lieu_id)      REFERENCES lieu (id),
-    CONSTRAINT fk_evenement_club      FOREIGN KEY (club_id)      REFERENCES club (id),
-    CONSTRAINT fk_evenement_createur  FOREIGN KEY (createur_id)  REFERENCES utilisateur (id)
+    CONSTRAINT fk_evenement_club      FOREIGN KEY (id_club)      REFERENCES club (id_club),
+    CONSTRAINT fk_evenement_categorie FOREIGN KEY (id_categorie) REFERENCES categorie (id_categorie),
+    CONSTRAINT fk_evenement_lieu      FOREIGN KEY (id_lieu)      REFERENCES lieu (id_lieu),
+    CONSTRAINT fk_evenement_createur  FOREIGN KEY (id_createur)  REFERENCES utilisateur (id_utilisateur)
 ) ENGINE = InnoDB;
 
 CREATE INDEX ix_evenement_statut_debut ON evenement (statut, date_debut);
 
 -- ---------------------------------------------------------------------
---  Inscriptions (avec liste d'attente) et avis
+--  8. inscription — classe d'association utilisateur / evenement
+--     (statut CONFIRMEE ou EN_ATTENTE : liste d'attente par date_inscription)
 -- ---------------------------------------------------------------------
 CREATE TABLE inscription (
-    id                   BIGINT       NOT NULL AUTO_INCREMENT,
-    evenement_id         BIGINT       NOT NULL,
-    utilisateur_id       BIGINT       NOT NULL,
-    statut               VARCHAR(20)  NOT NULL,
-    date_inscription     DATETIME(6)  NOT NULL,     -- microsecondes : ordre FIFO de la liste d'attente
-    presence_confirmee   BOOLEAN      NOT NULL DEFAULT FALSE,
-    CONSTRAINT pk_inscription PRIMARY KEY (id),
-    CONSTRAINT uq_inscription UNIQUE (evenement_id, utilisateur_id),
+    id_inscription      INT          NOT NULL AUTO_INCREMENT,
+    id_evenement        INT          NOT NULL,
+    id_utilisateur      INT          NOT NULL,
+    date_inscription    DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    statut              VARCHAR(20)  NOT NULL,
+    presence_confirmee  TINYINT(1)   NOT NULL DEFAULT 0,
+    CONSTRAINT pk_inscription PRIMARY KEY (id_inscription),
+    CONSTRAINT uq_inscription UNIQUE (id_evenement, id_utilisateur),   -- jamais deux inscriptions au même événement
     CONSTRAINT ck_inscription_statut CHECK (statut IN ('CONFIRMEE', 'EN_ATTENTE')),
-    CONSTRAINT fk_inscription_evenement   FOREIGN KEY (evenement_id)   REFERENCES evenement (id),
-    CONSTRAINT fk_inscription_utilisateur FOREIGN KEY (utilisateur_id) REFERENCES utilisateur (id)
+    CONSTRAINT fk_inscription_evenement   FOREIGN KEY (id_evenement)   REFERENCES evenement (id_evenement),
+    CONSTRAINT fk_inscription_utilisateur FOREIGN KEY (id_utilisateur) REFERENCES utilisateur (id_utilisateur)
 ) ENGINE = InnoDB;
 
-CREATE INDEX ix_inscription_attente ON inscription (evenement_id, statut, date_inscription);
+CREATE INDEX ix_inscription_attente ON inscription (id_evenement, statut, date_inscription);
 
+-- ---------------------------------------------------------------------
+--  9. avis — avis des participants sur un événement terminé
+-- ---------------------------------------------------------------------
 CREATE TABLE avis (
-    id              BIGINT        NOT NULL AUTO_INCREMENT,
-    evenement_id    BIGINT        NOT NULL,
-    utilisateur_id  BIGINT        NOT NULL,
-    note            INT           NOT NULL,
+    id_avis         INT          NOT NULL AUTO_INCREMENT,
+    id_evenement    INT          NOT NULL,
+    id_utilisateur  INT          NOT NULL,
+    note            TINYINT      NOT NULL,
     commentaire     VARCHAR(500),
-    date_avis       DATETIME      NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    CONSTRAINT pk_avis PRIMARY KEY (id),
-    CONSTRAINT uq_avis UNIQUE (evenement_id, utilisateur_id),
+    date_avis       DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT pk_avis PRIMARY KEY (id_avis),
+    CONSTRAINT uq_avis UNIQUE (id_evenement, id_utilisateur),          -- un seul avis par utilisateur et événement
     CONSTRAINT ck_avis_note CHECK (note BETWEEN 1 AND 5),
-    CONSTRAINT fk_avis_evenement   FOREIGN KEY (evenement_id)   REFERENCES evenement (id),
-    CONSTRAINT fk_avis_utilisateur FOREIGN KEY (utilisateur_id) REFERENCES utilisateur (id)
+    CONSTRAINT fk_avis_evenement   FOREIGN KEY (id_evenement)   REFERENCES evenement (id_evenement),
+    CONSTRAINT fk_avis_utilisateur FOREIGN KEY (id_utilisateur) REFERENCES utilisateur (id_utilisateur)
 ) ENGINE = InnoDB;

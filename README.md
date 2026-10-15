@@ -20,10 +20,15 @@ Spring Data JPA / Hibernate · Spring Security · Bean Validation · MySQL 8 · 
 Exécuter, dans l'ordre, les deux scripts du dossier `database/` (MySQL Workbench ou ligne de commande) :
 
 ```bash
-mysql -u root -p < database/schema.sql     # crée la base gg_evenements et toutes les tables
+mysql -u root -p < database/schema.sql     # crée la base gg_evenements et les 9 tables du schéma fourni
 mysql -u root -p < database/donnees.sql    # données de démonstration
 ```
 
+> `schema.sql` reprend exactement le document « GG'Événements — Schéma de la base de données » : noms de tables et
+> de colonnes (`id_utilisateur`, `mot_passe`, `id_responsable`…), types MySQL (`int`, `varchar(n)`, `tinyint(1)`,
+> `datetime`) et rôles `PUBLIC`, `ORGANISATEUR`, `ADMIN`. Il ajoute seulement des contraintes d'intégrité (clés
+> étrangères, `UNIQUE`, `CHECK`) qui ne changent pas la structure.
+>
 > Les dates des données de démonstration sont relatives à `NOW()` : la démonstration reste cohérente
 > (événements à venir, terminés, annulés) quel que soit le jour où le script est exécuté.
 
@@ -110,12 +115,17 @@ Couches strictes **Controller → Service → Repository** : aucun contrôleur n
   l'existence d'un compte.
 - **Club de l'organisateur** — jamais un champ de formulaire : déduit de l'utilisateur connecté. Toute action sur un
   événement d'un autre club est refusée par la couche service (HTTP 403). Un utilisateur est responsable d'au plus
-  un club (contrainte `UNIQUE` + vérification service).
+  un club (vérification dans la couche service ; le schéma fourni n'impose pas de contrainte `UNIQUE` sur `id_responsable`).
 - **Suppressions** — aucun compte ni événement n'est supprimé physiquement (désactivation / statut `ANNULE`).
   Catégories et lieux utilisés sont protégés par une vérification service avant toute erreur d'intégrité.
 - **Affiches** — téléversement facultatif (JPG, PNG, WEBP, GIF, 5 Mo max) enregistré dans `uploads/`, servi sous
   `/uploads/**`. Sans affiche, une image par défaut est affichée.
-- **Schéma** — créé par `database/schema.sql`; Hibernate se contente de le valider (`ddl-auto=validate`).
+- **Schéma** — créé par `database/schema.sql`, conforme au document fourni; Hibernate se contente de le valider
+  (`ddl-auto=validate`) : toute divergence entre les entités et le schéma empêche le démarrage.
+- **Rôles** — la colonne `nom_role` contient `PUBLIC`, `ORGANISATEUR` ou `ADMIN`; Spring Security reçoit l'autorité
+  `ROLE_` + `nom_role` (`/admin/**` → `ROLE_ADMIN`, `/organisateur/**` → `ROLE_ORGANISATEUR`).
+- **Logo des clubs** — la colonne `club.logo` est alimentée par un téléversement facultatif dans le formulaire de club
+  (administration) et affichée sur la fiche publique du club.
 - **Interface** — gabarit commun Thymeleaf (Layout Dialect), navigation adaptée au rôle indiquant la section
   active, messages d'erreur à côté de chaque champ, infobulles d'aide, indicateurs de places (barre + « Complet » /
   « Liste d'attente »), confirmations avant les actions sensibles, pages 403/404 personnalisées, mise en page

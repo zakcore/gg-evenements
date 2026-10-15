@@ -15,7 +15,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.UUID;
 
-/** Enregistre les affiches téléversées sur disque ; elles sont servies sous /uploads/**. */
+/** Enregistre les images téléversées (affiches, logos) sur disque ; elles sont servies sous /uploads/**. */
 @Service
 public class FichierService {
 
@@ -37,18 +37,28 @@ public class FichierService {
         return dossier;
     }
 
-    /** @return l'URL publique de l'image, ou {@code null} si aucun fichier n'a été choisi. */
+    /** @return l'URL publique de l'affiche, ou {@code null} si aucun fichier n'a été choisi. */
     public String enregistrerAffiche(MultipartFile fichier) {
+        return enregistrerImage(fichier, "image");
+    }
+
+    /** @return l'URL publique du logo, ou {@code null} si aucun fichier n'a été choisi. */
+    public String enregistrerLogo(MultipartFile fichier) {
+        return enregistrerImage(fichier, "logo");
+    }
+
+    /** @param champ champ du formulaire auquel rattacher un éventuel message d'erreur */
+    private String enregistrerImage(MultipartFile fichier, String champ) {
         if (fichier == null || fichier.isEmpty()) {
             return null;
         }
         if (fichier.getSize() > TAILLE_MAX) {
-            throw new RegleAffaireException("image", "L'image dépasse la taille maximale permise (5 Mo).");
+            throw new RegleAffaireException(champ, "L'image dépasse la taille maximale permise (5 Mo).");
         }
         String type = fichier.getContentType() == null ? "" : fichier.getContentType().toLowerCase(Locale.ROOT);
         String extension = EXTENSIONS.get(type);
         if (extension == null) {
-            throw new RegleAffaireException("image", "Format non pris en charge : utilisez une image JPG, PNG, WEBP ou GIF.");
+            throw new RegleAffaireException(champ, "Format non pris en charge : utilisez une image JPG, PNG, WEBP ou GIF.");
         }
         try {
             Files.createDirectories(dossier);

@@ -37,7 +37,7 @@ public class InscriptionService {
         this.utilisateurService = utilisateurService;
     }
 
-    public Optional<Inscription> inscriptionDe(Long evenementId, Long utilisateurId) {
+    public Optional<Inscription> inscriptionDe(Integer evenementId, Integer utilisateurId) {
         return inscriptionRepository.findByEvenementIdAndUtilisateurId(evenementId, utilisateurId);
     }
 
@@ -49,7 +49,7 @@ public class InscriptionService {
      * @return le statut attribué (CONFIRMEE ou EN_ATTENTE)
      */
     @Transactional
-    public StatutInscription inscrire(Long evenementId, Long utilisateurId) {
+    public StatutInscription inscrire(Integer evenementId, Integer utilisateurId) {
         Evenement evenement = verrouiller(evenementId);
         if (!evenement.isOuvert()) {
             throw new RegleAffaireException("Les inscriptions à cet événement sont fermées.");
@@ -70,7 +70,7 @@ public class InscriptionService {
      * de la première personne en attente forment une seule transaction : tout réussit, ou rien n'est écrit.
      */
     @Transactional
-    public void desinscrire(Long evenementId, Long utilisateurId) {
+    public void desinscrire(Integer evenementId, Integer utilisateurId) {
         Evenement evenement = verrouiller(evenementId);
         Inscription inscription = inscriptionRepository.findByEvenementIdAndUtilisateurId(evenementId, utilisateurId)
                 .orElseThrow(() -> new RegleAffaireException("Vous n'êtes pas inscrit(e) à cet événement."));
@@ -88,13 +88,13 @@ public class InscriptionService {
         }
     }
 
-    private Evenement verrouiller(Long evenementId) {
+    private Evenement verrouiller(Integer evenementId) {
         return evenementRepository.findByIdPourMiseAJour(evenementId)
                 .orElseThrow(() -> new RessourceIntrouvableException("Cet événement n'existe pas."));
     }
 
     /** Fonctionnalité 3 : inscriptions à venir et passées de l'utilisateur. */
-    public MesEvenements mesEvenements(Long utilisateurId) {
+    public MesEvenements mesEvenements(Integer utilisateurId) {
         LocalDateTime maintenant = LocalDateTime.now();
         return new MesEvenements(
                 inscriptionRepository.findAVenirPourUtilisateur(utilisateurId, maintenant),
@@ -106,13 +106,13 @@ public class InscriptionService {
     //  Fonctionnalité 12 : gestion des inscriptions par l'organisateur
     // ------------------------------------------------------------------
 
-    public List<Inscription> confirmees(Long evenementId, Long organisateurId) {
+    public List<Inscription> confirmees(Integer evenementId, Integer organisateurId) {
         evenementService.trouverPourGestion(evenementId, organisateurId);
         return inscriptionRepository.findByEvenementIdAndStatutOrderByDateInscriptionAscIdAsc(
                 evenementId, StatutInscription.CONFIRMEE);
     }
 
-    public List<Inscription> enAttente(Long evenementId, Long organisateurId) {
+    public List<Inscription> enAttente(Integer evenementId, Integer organisateurId) {
         evenementService.trouverPourGestion(evenementId, organisateurId);
         return inscriptionRepository.findByEvenementIdAndStatutOrderByDateInscriptionAscIdAsc(
                 evenementId, StatutInscription.EN_ATTENTE);
@@ -120,7 +120,7 @@ public class InscriptionService {
 
     /** Coche « Présence confirmée » pour les inscriptions reçues, décoche les autres (confirmées seulement). */
     @Transactional
-    public int enregistrerPresences(Long evenementId, Long organisateurId, Set<Long> presents) {
+    public int enregistrerPresences(Integer evenementId, Integer organisateurId, Set<Integer> presents) {
         List<Inscription> confirmees = confirmees(evenementId, organisateurId);
         confirmees.forEach(i -> i.setPresenceConfirmee(presents.contains(i.getId())));
         return (int) confirmees.stream().filter(Inscription::isPresenceConfirmee).count();

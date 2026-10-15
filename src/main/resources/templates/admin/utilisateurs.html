@@ -38,8 +38,8 @@
                 <td>
                     <div class="actions" style="gap: 6px; justify-content: flex-start">
                         <span th:each="r : ${u.rolesTries}" class="badge"
-                              th:classappend="${r.nom == 'ROLE_ADMIN'} ? 'badge--bleu' : (${r.nom == 'ROLE_ORGANISATEUR'} ? 'badge--jaune' : 'badge--gris')"
-                              th:text="${r.libelle}">Rôle</span>
+                              th:classappend="${r.nom == 'ADMIN'} ? 'badge--bleu' : (${r.nom == 'ORGANISATEUR'} ? 'badge--jaune' : 'badge--gris')"
+                              th:text="${r.libelle}" th:title="${r.description}">Rôle</span>
                     </div>
                 </td>
                 <td>

@@ -16,7 +16,7 @@
         </div>
     </header>
 
-    <form class="form-card" th:action="${action}" th:object="${clubForm}" method="post" novalidate>
+    <form class="form-card" th:action="${action}" th:object="${clubForm}" method="post" enctype="multipart/form-data" novalidate>
         <div class="flash flash--erreur form-error" role="alert" th:if="${#fields.hasGlobalErrors()}">
             <i class="ph-bold ph-warning-circle"></i>
             <p><span th:each="err : ${#fields.globalErrors()}" th:text="${err}">Erreur</span></p>
@@ -24,24 +24,24 @@
 
         <div class="field">
             <label class="label" for="nom">Nom du club <span class="req" aria-hidden="true">*</span></label>
-            <input class="input" id="nom" th:field="*{nom}" maxlength="100" required
+            <input class="input" id="nom" th:field="*{nom}" maxlength="80" required
                    th:classappend="${#fields.hasErrors('nom')} ? 'is-invalid'" placeholder="ex. Club de photographie">
             <p th:replace="~{fragments/ui :: erreur('nom')}"></p>
         </div>
 
         <div class="field">
             <label class="label" for="description">Description <span class="opt">(facultatif)</span></label>
-            <textarea class="textarea" id="description" th:field="*{description}" rows="4" data-counter="1000"
+            <textarea class="textarea" id="description" th:field="*{description}" rows="4" data-counter="300"
                       th:classappend="${#fields.hasErrors('description')} ? 'is-invalid'"
                       placeholder="Mission du club, activités habituelles…"></textarea>
-            <span class="counter" data-counter-for="description">0 / 1000</span>
+            <span class="counter" data-counter-for="description">0 / 300</span>
             <p th:replace="~{fragments/ui :: erreur('description')}"></p>
         </div>
 
         <div class="form-grid">
             <div class="field">
                 <label class="label" for="courrielContact">Courriel de contact <span class="req" aria-hidden="true">*</span></label>
-                <input class="input" type="email" id="courrielContact" th:field="*{courrielContact}" maxlength="120" required
+                <input class="input" type="email" id="courrielContact" th:field="*{courrielContact}" maxlength="100" required
                        th:classappend="${#fields.hasErrors('courrielContact')} ? 'is-invalid'" placeholder="club@cgodin.qc.ca">
                 <p th:replace="~{fragments/ui :: erreur('courrielContact')}"></p>
             </div>
@@ -56,6 +56,18 @@
                 </select>
                 <p th:replace="~{fragments/ui :: erreur('responsableId')}"></p>
             </div>
+        </div>
+
+        <div class="field">
+            <label class="label" for="logo">Logo <span class="opt">(facultatif)</span>
+                <span class="tip" tabindex="0" data-tip="JPG, PNG, WEBP ou GIF, 5 Mo au maximum. Laisser vide pour conserver le logo actuel."><i class="ph-bold ph-info"></i></span>
+            </label>
+            <div class="logo-field">
+                <img id="apercuLogo" class="club-logo club-logo--lg" th:if="${club?.logo != null}" th:src="@{${club.logo}}" alt="Logo actuel">
+                <input class="input" type="file" id="logo" name="logo" accept="image/jpeg,image/png,image/webp,image/gif"
+                       th:classappend="${#fields.hasErrors('logo')} ? 'is-invalid'">
+            </div>
+            <p th:replace="~{fragments/ui :: erreur('logo')}"></p>
         </div>
 
         <div class="form-actions">

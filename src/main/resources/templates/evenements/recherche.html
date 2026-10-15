@@ -17,7 +17,7 @@
     <form class="toolbar" th:action="@{/evenements/recherche}" method="get" th:object="${criteres}" role="search">
         <div class="field field--grow">
             <label class="label" for="titre">Titre contient</label>
-            <input class="input" type="search" id="titre" th:field="*{titre}" placeholder="ex. impro, randonnée, atelier…" maxlength="150">
+            <input class="input" type="search" id="titre" th:field="*{titre}" placeholder="ex. impro, randonnée, atelier…" maxlength="120">
         </div>
         <div class="field">
             <label class="label" for="categorie">Catégorie</label>

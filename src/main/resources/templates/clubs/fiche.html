@@ -9,7 +9,8 @@
     <a class="back" th:href="@{/evenements}"><i class="ph-bold ph-arrow-left"></i>Retour à la liste des événements</a>
 
     <header class="club-head">
-        <div class="club-mark" aria-hidden="true" th:text="${#strings.substring(club.nom, 0, 1)}">L</div>
+        <img class="club-logo club-logo--lg" th:if="${club.logo}" th:src="@{${club.logo}}" th:alt="|Logo : ${club.nom}|">
+        <div class="club-mark" aria-hidden="true" th:unless="${club.logo}" th:text="${#strings.substring(club.nom, 0, 1)}">L</div>
         <div>
             <span class="eyebrow">Club étudiant
                 <span th:unless="${club.actif}" class="badge badge--gris" style="margin-left: 8px">Inactif cette session</span></span>

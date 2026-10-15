@@ -14,6 +14,6 @@ public record Statistiques(long nbPlanifies,
         return nbPlanifies + nbAnnules + nbTermines;
     }
 
-    public record ClubActif(Long id, String nom, long nbEvenements) {
+    public record ClubActif(Integer id, String nom, long nbEvenements) {
     }
 }

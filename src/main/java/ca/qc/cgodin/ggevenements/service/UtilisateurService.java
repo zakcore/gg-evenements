@@ -27,7 +27,7 @@ public class UtilisateurService {
         this.clubRepository = clubRepository;
     }
 
-    public Utilisateur trouver(Long id) {
+    public Utilisateur trouver(Integer id) {
         return utilisateurRepository.findById(id)
                 .orElseThrow(() -> new RessourceIntrouvableException("Utilisateur introuvable."));
     }
@@ -42,7 +42,7 @@ public class UtilisateurService {
 
     /** Désactive ou réactive un compte. Aucune suppression : l'historique (inscriptions, avis) est conservé. */
     @Transactional
-    public Utilisateur basculerActif(Long id, Long adminConnecteId) {
+    public Utilisateur basculerActif(Integer id, Integer adminConnecteId) {
         Utilisateur utilisateur = trouver(id);
         if (utilisateur.getId().equals(adminConnecteId)) {
             throw new RegleAffaireException("Vous ne pouvez pas désactiver votre propre compte.");
@@ -53,10 +53,10 @@ public class UtilisateurService {
 
     /** Attribue ou retire le rôle Organisateur. */
     @Transactional
-    public Utilisateur basculerRoleOrganisateur(Long id) {
+    public Utilisateur basculerRoleOrganisateur(Integer id) {
         Utilisateur utilisateur = trouver(id);
         if (utilisateur.isOrganisateur()) {
-            clubRepository.findByResponsableId(id).ifPresent(club -> {
+            clubRepository.findFirstByResponsableIdOrderByActifDescNomAsc(id).ifPresent(club -> {
                 throw new RegleAffaireException(utilisateur.getNomComplet() + " est responsable du club « "
                         + club.getNom() + " ». Désignez d'abord un autre responsable pour ce club.");
             });
@@ -71,7 +71,7 @@ public class UtilisateurService {
     public void accorderRoleOrganisateur(Utilisateur utilisateur) {
         if (!utilisateur.isOrganisateur()) {
             Role role = roleRepository.findByNom(Role.ORGANISATEUR)
-                    .orElseThrow(() -> new IllegalStateException("Rôle ROLE_ORGANISATEUR absent de la base."));
+                    .orElseThrow(() -> new IllegalStateException("Rôle ORGANISATEUR absent de la base."));
             utilisateur.getRoles().add(role);
         }
     }

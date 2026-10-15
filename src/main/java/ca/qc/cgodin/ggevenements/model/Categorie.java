@@ -11,15 +11,16 @@ public class Categorie {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    @Column(name = "id_categorie")
+    private Integer id;
 
     @NotBlank(message = "Le nom est obligatoire.")
-    @Size(max = 60, message = "Le nom ne doit pas dépasser 60 caractères.")
-    @Column(nullable = false, unique = true, length = 60)
+    @Size(max = 50, message = "Le nom ne doit pas dépasser 50 caractères.")
+    @Column(nullable = false, unique = true, length = 50)
     private String nom;
 
-    @Size(max = 500, message = "La description ne doit pas dépasser 500 caractères.")
-    @Column(length = 500)
+    @Size(max = 150, message = "La description ne doit pas dépasser 150 caractères.")
+    @Column(length = 150)
     private String description;
 
     @NotBlank(message = "La couleur est obligatoire.")
@@ -27,11 +28,11 @@ public class Categorie {
     @Column(nullable = false, length = 7)
     private String couleur = "#787774";
 
-    public Long getId() {
+    public Integer getId() {
         return id;
     }
 
-    public void setId(Long id) {
+    public void setId(Integer id) {
         this.id = id;
     }
 

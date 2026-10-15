@@ -15,18 +15,18 @@ import java.time.LocalDateTime;
 public class EvenementForm {
 
     @NotBlank(message = "Le titre est obligatoire.")
-    @Size(max = 150, message = "Le titre ne doit pas dépasser 150 caractères.")
+    @Size(max = 120, message = "Le titre ne doit pas dépasser 120 caractères.")
     private String titre;
 
     @NotBlank(message = "La description est obligatoire.")
-    @Size(max = 5000, message = "La description ne doit pas dépasser 5000 caractères.")
+    @Size(max = 1000, message = "La description ne doit pas dépasser 1000 caractères.")
     private String description;
 
     @NotNull(message = "Choisissez une catégorie.")
-    private Long categorieId;
+    private Integer categorieId;
 
     @NotNull(message = "Choisissez un lieu.")
-    private Long lieuId;
+    private Integer lieuId;
 
     @NotNull(message = "La date et l'heure de début sont obligatoires.")
     @Future(message = "La date de début doit être dans le futur.")
@@ -73,19 +73,19 @@ public class EvenementForm {
         this.description = description;
     }
 
-    public Long getCategorieId() {
+    public Integer getCategorieId() {
         return categorieId;
     }
 
-    public void setCategorieId(Long categorieId) {
+    public void setCategorieId(Integer categorieId) {
         this.categorieId = categorieId;
     }
 
-    public Long getLieuId() {
+    public Integer getLieuId() {
         return lieuId;
     }
 
-    public void setLieuId(Long lieuId) {
+    public void setLieuId(Integer lieuId) {
         this.lieuId = lieuId;
     }
 

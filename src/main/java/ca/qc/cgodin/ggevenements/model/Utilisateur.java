@@ -14,30 +14,31 @@ public class Utilisateur {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    @Column(name = "id_utilisateur")
+    private Integer id;
 
-    @Column(nullable = false, length = 60)
+    @Column(nullable = false, length = 50)
     private String prenom;
 
-    @Column(nullable = false, length = 60)
+    @Column(nullable = false, length = 50)
     private String nom;
 
-    @Column(nullable = false, unique = true, length = 120)
+    @Column(nullable = false, unique = true, length = 100)
     private String courriel;
 
-    @Column(name = "mot_de_passe", nullable = false, length = 100)
-    private String motDePasse;
+    @Column(name = "mot_passe", nullable = false, length = 60)
+    private String motPasse;
 
     @Column(nullable = false)
     private boolean actif = true;
 
-    @Column(name = "date_creation", nullable = false)
-    private LocalDateTime dateCreation = LocalDateTime.now();
+    @Column(name = "date_inscription", nullable = false)
+    private LocalDateTime dateInscription = LocalDateTime.now();
 
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(name = "utilisateur_role",
-            joinColumns = @JoinColumn(name = "utilisateur_id"),
-            inverseJoinColumns = @JoinColumn(name = "role_id"))
+            joinColumns = @JoinColumn(name = "id_utilisateur"),
+            inverseJoinColumns = @JoinColumn(name = "id_role"))
     private Set<Role> roles = new HashSet<>();
 
     public boolean aRole(String nomRole) {
@@ -52,7 +53,7 @@ public class Utilisateur {
         return aRole(Role.ADMIN);
     }
 
-    /** Rôles triés pour un affichage stable (Administrateur, Organisateur, Utilisateur). */
+    /** Rôles triés pour un affichage stable (ADMIN, ORGANISATEUR, PUBLIC). */
     public List<Role> getRolesTries() {
         return roles.stream().sorted(Comparator.comparing(Role::getNom)).toList();
     }
@@ -65,7 +66,7 @@ public class Utilisateur {
         return (prenom.isEmpty() ? "" : prenom.substring(0, 1)) + (nom.isEmpty() ? "" : nom.substring(0, 1));
     }
 
-    public Long getId() {
+    public Integer getId() {
         return id;
     }
 
@@ -93,12 +94,12 @@ public class Utilisateur {
         this.courriel = courriel;
     }
 
-    public String getMotDePasse() {
-        return motDePasse;
+    public String getMotPasse() {
+        return motPasse;
     }
 
-    public void setMotDePasse(String motDePasse) {
-        this.motDePasse = motDePasse;
+    public void setMotPasse(String motPasse) {
+        this.motPasse = motPasse;
     }
 
     public boolean isActif() {
@@ -109,8 +110,8 @@ public class Utilisateur {
         this.actif = actif;
     }
 
-    public LocalDateTime getDateCreation() {
-        return dateCreation;
+    public LocalDateTime getDateInscription() {
+        return dateInscription;
     }
 
     public Set<Role> getRoles() {

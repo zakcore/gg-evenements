@@ -29,11 +29,11 @@ public class AvisService {
         this.utilisateurService = utilisateurService;
     }
 
-    public List<Avis> avisDe(Long evenementId) {
+    public List<Avis> avisDe(Integer evenementId) {
         return avisRepository.findByEvenementIdOrderByDateAvisDesc(evenementId);
     }
 
-    public Double moyenne(Long evenementId) {
+    public Double moyenne(Integer evenementId) {
         return avisRepository.moyennePourEvenement(evenementId);
     }
 
@@ -41,7 +41,7 @@ public class AvisService {
      * Fonctionnalité 8 : seul un participant CONFIRMÉ d'un événement terminé, n'ayant encore laissé
      * aucun avis, peut en soumettre un.
      */
-    public Evenement verifierAdmissible(Long evenementId, Long utilisateurId) {
+    public Evenement verifierAdmissible(Integer evenementId, Integer utilisateurId) {
         Evenement evenement = evenementService.trouver(evenementId);
         Inscription inscription = inscriptionRepository.findByEvenementIdAndUtilisateurId(evenementId, utilisateurId)
                 .orElseThrow(() -> new RegleAffaireException("Vous n'étiez pas inscrit(e) à cet événement."));
@@ -58,7 +58,7 @@ public class AvisService {
     }
 
     @Transactional
-    public Avis soumettre(Long evenementId, Long utilisateurId, AvisForm form) {
+    public Avis soumettre(Integer evenementId, Integer utilisateurId, AvisForm form) {
         Evenement evenement = verifierAdmissible(evenementId, utilisateurId);
         String commentaire = form.getCommentaire() == null || form.getCommentaire().isBlank()
                 ? null : form.getCommentaire().trim();

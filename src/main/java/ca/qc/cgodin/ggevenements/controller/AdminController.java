@@ -53,7 +53,7 @@ public class AdminController {
     }
 
     @PostMapping("/utilisateurs/{id}/actif")
-    public String basculerActif(@PathVariable Long id, @AuthenticationPrincipal UtilisateurDetails admin,
+    public String basculerActif(@PathVariable Integer id, @AuthenticationPrincipal UtilisateurDetails admin,
                                 RedirectAttributes attributs) {
         try {
             Utilisateur u = utilisateurService.basculerActif(id, admin.getId());
@@ -66,7 +66,7 @@ public class AdminController {
     }
 
     @PostMapping("/utilisateurs/{id}/organisateur")
-    public String basculerOrganisateur(@PathVariable Long id, RedirectAttributes attributs) {
+    public String basculerOrganisateur(@PathVariable Integer id, RedirectAttributes attributs) {
         try {
             Utilisateur u = utilisateurService.basculerRoleOrganisateur(id);
             attributs.addFlashAttribute("succes", u.isOrganisateur()
@@ -109,14 +109,14 @@ public class AdminController {
     }
 
     @GetMapping("/clubs/{id}/modifier")
-    public String modifierClub(@PathVariable Long id, Model model) {
+    public String modifierClub(@PathVariable Integer id, Model model) {
         Club club = clubService.trouver(id);
         model.addAttribute("clubForm", ClubForm.depuis(club));
         return formulaireClub(model, club);
     }
 
     @PostMapping("/clubs/{id}/modifier")
-    public String enregistrerClub(@PathVariable Long id, @Valid @ModelAttribute("clubForm") ClubForm form,
+    public String enregistrerClub(@PathVariable Integer id, @Valid @ModelAttribute("clubForm") ClubForm form,
                                   BindingResult resultat, Model model, RedirectAttributes attributs) {
         Club club = clubService.trouver(id);
         if (!resultat.hasErrors()) {
@@ -132,7 +132,7 @@ public class AdminController {
     }
 
     @PostMapping("/clubs/{id}/actif")
-    public String basculerClub(@PathVariable Long id, RedirectAttributes attributs) {
+    public String basculerClub(@PathVariable Integer id, RedirectAttributes attributs) {
         Club club = clubService.basculerActif(id);
         attributs.addFlashAttribute("succes", "Le club « " + club.getNom() + " » a été "
                 + (club.isActif() ? "activé." : "désactivé."));
@@ -161,13 +161,13 @@ public class AdminController {
     }
 
     @GetMapping("/categories/{id}/modifier")
-    public String modifierCategorie(@PathVariable Long id, Model model) {
+    public String modifierCategorie(@PathVariable Integer id, Model model) {
         model.addAttribute("categorie", categorieService.trouver(id));
         return "admin/categorie-formulaire";
     }
 
     @PostMapping({"/categories/nouvelle", "/categories/{id}/modifier"})
-    public String enregistrerCategorie(@PathVariable(required = false) Long id,
+    public String enregistrerCategorie(@PathVariable(required = false) Integer id,
                                        @Valid @ModelAttribute("categorie") Categorie categorie, BindingResult resultat,
                                        RedirectAttributes attributs) {
         categorie.setId(id);
@@ -184,7 +184,7 @@ public class AdminController {
     }
 
     @PostMapping("/categories/{id}/supprimer")
-    public String supprimerCategorie(@PathVariable Long id, RedirectAttributes attributs) {
+    public String supprimerCategorie(@PathVariable Integer id, RedirectAttributes attributs) {
         try {
             categorieService.supprimer(id);
             attributs.addFlashAttribute("succes", "La catégorie a été supprimée.");
@@ -201,13 +201,13 @@ public class AdminController {
     }
 
     @GetMapping("/lieux/{id}/modifier")
-    public String modifierLieu(@PathVariable Long id, Model model) {
+    public String modifierLieu(@PathVariable Integer id, Model model) {
         model.addAttribute("lieu", lieuService.trouver(id));
         return "admin/lieu-formulaire";
     }
 
     @PostMapping({"/lieux/nouveau", "/lieux/{id}/modifier"})
-    public String enregistrerLieu(@PathVariable(required = false) Long id, @Valid @ModelAttribute("lieu") Lieu lieu,
+    public String enregistrerLieu(@PathVariable(required = false) Integer id, @Valid @ModelAttribute("lieu") Lieu lieu,
                                   BindingResult resultat, RedirectAttributes attributs) {
         lieu.setId(id);
         if (!resultat.hasErrors()) {
@@ -219,7 +219,7 @@ public class AdminController {
     }
 
     @PostMapping("/lieux/{id}/supprimer")
-    public String supprimerLieu(@PathVariable Long id, RedirectAttributes attributs) {
+    public String supprimerLieu(@PathVariable Integer id, RedirectAttributes attributs) {
         try {
             lieuService.supprimer(id);
             attributs.addFlashAttribute("succes", "Le lieu a été supprimé.");

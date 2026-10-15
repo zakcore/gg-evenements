@@ -34,7 +34,7 @@
 
             <div class="field">
                 <label class="label" for="titre">Titre <span class="req" aria-hidden="true">*</span></label>
-                <input class="input" id="titre" th:field="*{titre}" maxlength="150" required
+                <input class="input" id="titre" th:field="*{titre}" maxlength="120" required
                        th:classappend="${#fields.hasErrors('titre')} ? 'is-invalid'"
                        placeholder="ex. Tournoi de volleyball intercollégial">
                 <p th:replace="~{fragments/ui :: erreur('titre')}"></p>
@@ -44,9 +44,10 @@
                 <label class="label" for="description">Description <span class="req" aria-hidden="true">*</span>
                     <span class="tip" tabindex="0" data-tip="Précisez le déroulement, ce qu'il faut apporter et à qui s'adresse l'événement. Les retours à la ligne sont conservés."><i class="ph-bold ph-info"></i></span>
                 </label>
-                <textarea class="textarea" id="description" th:field="*{description}" rows="7" required
+                <textarea class="textarea" id="description" th:field="*{description}" rows="7" required data-counter="1000"
                           th:classappend="${#fields.hasErrors('description')} ? 'is-invalid'"
                           placeholder="Déroulement, public visé, matériel à apporter, point de rencontre…"></textarea>
+                <span class="counter" data-counter-for="description">0 / 1000</span>
                 <p th:replace="~{fragments/ui :: erreur('description')}"></p>
             </div>
 

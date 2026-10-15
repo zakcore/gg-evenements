@@ -8,18 +8,18 @@ import org.springframework.data.repository.query.Param;
 import java.util.List;
 import java.util.Set;
 
-public interface AvisRepository extends JpaRepository<Avis, Long> {
+public interface AvisRepository extends JpaRepository<Avis, Integer> {
 
-    List<Avis> findByEvenementIdOrderByDateAvisDesc(Long evenementId);
+    List<Avis> findByEvenementIdOrderByDateAvisDesc(Integer evenementId);
 
-    boolean existsByEvenementIdAndUtilisateurId(Long evenementId, Long utilisateurId);
+    boolean existsByEvenementIdAndUtilisateurId(Integer evenementId, Integer utilisateurId);
 
     @Query("select avg(a.note) from Avis a where a.evenement.id = :evenementId")
-    Double moyennePourEvenement(@Param("evenementId") Long evenementId);
+    Double moyennePourEvenement(@Param("evenementId") Integer evenementId);
 
     @Query("select avg(a.note) from Avis a")
     Double moyenneGenerale();
 
     @Query("select a.evenement.id from Avis a where a.utilisateur.id = :utilisateurId")
-    Set<Long> findEvenementIdsAvecAvis(@Param("utilisateurId") Long utilisateurId);
+    Set<Integer> findEvenementIdsAvecAvis(@Param("utilisateurId") Integer utilisateurId);
 }

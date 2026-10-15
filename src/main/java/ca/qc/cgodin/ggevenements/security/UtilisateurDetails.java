@@ -11,7 +11,7 @@ import java.util.List;
 /** Principal Spring Security : expose l'identifiant et le nom de l'utilisateur connecté. */
 public class UtilisateurDetails implements UserDetails {
 
-    private final Long id;
+    private final Integer id;
     private final String courriel;
     private final String motDePasse;
     private final String prenom;
@@ -22,16 +22,16 @@ public class UtilisateurDetails implements UserDetails {
     public UtilisateurDetails(Utilisateur utilisateur) {
         this.id = utilisateur.getId();
         this.courriel = utilisateur.getCourriel();
-        this.motDePasse = utilisateur.getMotDePasse();
+        this.motDePasse = utilisateur.getMotPasse();
         this.prenom = utilisateur.getPrenom();
         this.nomComplet = utilisateur.getNomComplet();
         this.actif = utilisateur.isActif();
         this.autorites = utilisateur.getRoles().stream()
-                .map(r -> (GrantedAuthority) new SimpleGrantedAuthority(r.getNom()))
+                .map(r -> (GrantedAuthority) new SimpleGrantedAuthority(r.getAutorite()))
                 .toList();
     }
 
-    public Long getId() {
+    public Integer getId() {
         return id;
     }
 

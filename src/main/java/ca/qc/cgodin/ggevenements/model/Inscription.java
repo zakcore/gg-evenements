@@ -6,19 +6,20 @@ import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "inscription",
-        uniqueConstraints = @UniqueConstraint(name = "uq_inscription", columnNames = {"evenement_id", "utilisateur_id"}))
+        uniqueConstraints = @UniqueConstraint(name = "uq_inscription", columnNames = {"id_evenement", "id_utilisateur"}))
 public class Inscription {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    @Column(name = "id_inscription")
+    private Integer id;
 
     @ManyToOne(optional = false)
-    @JoinColumn(name = "evenement_id")
+    @JoinColumn(name = "id_evenement")
     private Evenement evenement;
 
     @ManyToOne(optional = false)
-    @JoinColumn(name = "utilisateur_id")
+    @JoinColumn(name = "id_utilisateur")
     private Utilisateur utilisateur;
 
     @Enumerated(EnumType.STRING)
@@ -45,7 +46,7 @@ public class Inscription {
         return statut == StatutInscription.CONFIRMEE;
     }
 
-    public Long getId() {
+    public Integer getId() {
         return id;
     }
 

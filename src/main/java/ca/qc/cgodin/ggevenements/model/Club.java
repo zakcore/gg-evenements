@@ -8,25 +8,29 @@ public class Club {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    @Column(name = "id_club")
+    private Integer id;
 
-    @Column(nullable = false, unique = true, length = 100)
+    @Column(nullable = false, unique = true, length = 80)
     private String nom;
 
-    @Column(length = 1000)
+    @Column(length = 300)
     private String description;
 
-    @Column(name = "courriel_contact", nullable = false, length = 120)
+    @Column(name = "courriel_contact", nullable = false, length = 100)
     private String courrielContact;
 
+    @Column(length = 150)
+    private String logo;
+
     @ManyToOne(optional = false)
-    @JoinColumn(name = "responsable_id")
+    @JoinColumn(name = "id_responsable")
     private Utilisateur responsable;
 
     @Column(nullable = false)
     private boolean actif = true;
 
-    public Long getId() {
+    public Integer getId() {
         return id;
     }
 
@@ -52,6 +56,14 @@ public class Club {
 
     public void setCourrielContact(String courrielContact) {
         this.courrielContact = courrielContact;
+    }
+
+    public String getLogo() {
+        return logo;
+    }
+
+    public void setLogo(String logo) {
+        this.logo = logo;
     }
 
     public Utilisateur getResponsable() {

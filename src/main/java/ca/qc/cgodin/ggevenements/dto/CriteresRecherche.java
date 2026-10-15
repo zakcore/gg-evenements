@@ -8,8 +8,8 @@ import java.time.LocalDate;
 public class CriteresRecherche {
 
     private String titre;
-    private Long categorie;
-    private Long club;
+    private Integer categorie;
+    private Integer club;
 
     @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
     private LocalDate du;
@@ -34,19 +34,19 @@ public class CriteresRecherche {
         this.titre = titre;
     }
 
-    public Long getCategorie() {
+    public Integer getCategorie() {
         return categorie;
     }
 
-    public void setCategorie(Long categorie) {
+    public void setCategorie(Integer categorie) {
         this.categorie = categorie;
     }
 
-    public Long getClub() {
+    public Integer getClub() {
         return club;
     }
 
-    public void setClub(Long club) {
+    public void setClub(Integer club) {
         this.club = club;
     }
 

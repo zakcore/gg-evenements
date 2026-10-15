@@ -11,7 +11,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
-public interface EvenementRepository extends JpaRepository<Evenement, Long>, JpaSpecificationExecutor<Evenement> {
+public interface EvenementRepository extends JpaRepository<Evenement, Integer>, JpaSpecificationExecutor<Evenement> {
 
     /**
      * Verrou pessimiste (SELECT ... FOR UPDATE) sur la ligne de l'événement : sérialise les inscriptions
@@ -19,22 +19,22 @@ public interface EvenementRepository extends JpaRepository<Evenement, Long>, Jpa
      */
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     @Query("select e from Evenement e where e.id = :id")
-    Optional<Evenement> findByIdPourMiseAJour(@Param("id") Long id);
+    Optional<Evenement> findByIdPourMiseAJour(@Param("id") Integer id);
 
-    List<Evenement> findByClubIdOrderByDateDebutDesc(Long clubId);
+    List<Evenement> findByClubIdOrderByDateDebutDesc(Integer clubId);
 
-    List<Evenement> findByClubIdAndStatutAndDateDebutAfterOrderByDateDebutAsc(Long clubId, StatutEvenement statut,
+    List<Evenement> findByClubIdAndStatutAndDateDebutAfterOrderByDateDebutAsc(Integer clubId, StatutEvenement statut,
                                                                               LocalDateTime maintenant);
 
     @Query("select e from Evenement e where e.club.id = :clubId and (e.statut = ca.qc.cgodin.ggevenements.model.StatutEvenement.TERMINE "
             + "or e.dateFin < :maintenant) order by e.dateDebut desc")
-    List<Evenement> findPassesDuClub(@Param("clubId") Long clubId, @Param("maintenant") LocalDateTime maintenant);
+    List<Evenement> findPassesDuClub(@Param("clubId") Integer clubId, @Param("maintenant") LocalDateTime maintenant);
 
-    boolean existsByCategorieId(Long categorieId);
+    boolean existsByCategorieId(Integer categorieId);
 
-    boolean existsByLieuId(Long lieuId);
+    boolean existsByLieuId(Integer lieuId);
 
-    long countByClubId(Long clubId);
+    long countByClubId(Integer clubId);
 
     /** Passe au statut TERMINE les événements planifiés dont la date de fin est dépassée. */
     @Modifying
@@ -53,11 +53,11 @@ public interface EvenementRepository extends JpaRepository<Evenement, Long>, Jpa
     /** Moyenne, sur les événements terminés, du ratio inscriptions confirmées / capacité. */
     @Query(value = """
             SELECT AVG(t.taux) FROM (
-                SELECT COUNT(i.id) / e.capacite_max AS taux
+                SELECT COUNT(i.id_inscription) / e.capacite_max AS taux
                 FROM evenement e
-                LEFT JOIN inscription i ON i.evenement_id = e.id AND i.statut = 'CONFIRMEE'
+                LEFT JOIN inscription i ON i.id_evenement = e.id_evenement AND i.statut = 'CONFIRMEE'
                 WHERE e.statut = 'TERMINE'
-                GROUP BY e.id, e.capacite_max
+                GROUP BY e.id_evenement, e.capacite_max
             ) t
             """, nativeQuery = true)
     Double tauxMoyenRemplissageTermines();

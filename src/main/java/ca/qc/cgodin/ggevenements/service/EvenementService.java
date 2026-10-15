@@ -85,17 +85,17 @@ public class EvenementService {
         return PageRequest.of(criteres.getPage(), TAILLE_PAGE, tri.and(Sort.by("id")));
     }
 
-    public Evenement trouver(Long id) {
+    public Evenement trouver(Integer id) {
         return evenementRepository.findById(id)
                 .orElseThrow(() -> new RessourceIntrouvableException("Cet événement n'existe pas."));
     }
 
-    public List<Evenement> aVenirDuClub(Long clubId) {
+    public List<Evenement> aVenirDuClub(Integer clubId) {
         return evenementRepository.findByClubIdAndStatutAndDateDebutAfterOrderByDateDebutAsc(
                 clubId, StatutEvenement.PLANIFIE, LocalDateTime.now());
     }
 
-    public List<Evenement> passesDuClub(Long clubId) {
+    public List<Evenement> passesDuClub(Integer clubId) {
         return evenementRepository.findPassesDuClub(clubId, LocalDateTime.now());
     }
 
@@ -104,12 +104,12 @@ public class EvenementService {
     // ------------------------------------------------------------------
 
     /** Club dont l'utilisateur est responsable ; sans club, l'espace organisateur lui est refusé. */
-    public Club clubDeLOrganisateur(Long organisateurId) {
+    public Club clubDeLOrganisateur(Integer organisateurId) {
         return clubService.clubDuResponsable(organisateurId)
                 .orElseThrow(() -> new AccesRefuseException("Aucun club ne vous est attribué. Contactez la Vie étudiante."));
     }
 
-    public List<Evenement> evenementsDuClub(Long organisateurId) {
+    public List<Evenement> evenementsDuClub(Integer organisateurId) {
         return evenementRepository.findByClubIdOrderByDateDebutDesc(clubDeLOrganisateur(organisateurId).getId());
     }
 
@@ -117,7 +117,7 @@ public class EvenementService {
      * Charge un événement pour une action de gestion, en vérifiant qu'il appartient au club de
      * l'organisateur connecté. Sinon : AccesRefuseException → HTTP 403, quel que soit l'affichage.
      */
-    public Evenement trouverPourGestion(Long evenementId, Long organisateurId) {
+    public Evenement trouverPourGestion(Integer evenementId, Integer organisateurId) {
         Evenement evenement = trouver(evenementId);
         if (!evenement.getClub().getResponsable().getId().equals(organisateurId)) {
             throw new AccesRefuseException("Cet événement n'appartient pas à votre club.");
@@ -127,7 +127,7 @@ public class EvenementService {
 
     /** Fonctionnalité 10. Le club vient toujours de l'organisateur connecté, jamais du formulaire. */
     @Transactional
-    public Evenement creer(EvenementForm form, Long organisateurId) {
+    public Evenement creer(EvenementForm form, Integer organisateurId) {
         Club club = clubDeLOrganisateur(organisateurId);
         if (!club.isActif()) {
             throw new RegleAffaireException("Votre club est désactivé : la création d'événements est suspendue.");
@@ -147,7 +147,7 @@ public class EvenementService {
 
     /** Fonctionnalité 11 : modification, avec la règle « capacité ≥ inscriptions confirmées ». */
     @Transactional
-    public Evenement modifier(Long evenementId, EvenementForm form, Long organisateurId) {
+    public Evenement modifier(Integer evenementId, EvenementForm form, Integer organisateurId) {
         trouverPourGestion(evenementId, organisateurId);
         // Verrou : aucune inscription ne peut se glisser entre la vérification et la mise à jour.
         Evenement evenement = evenementRepository.findByIdPourMiseAJour(evenementId)
@@ -171,7 +171,7 @@ public class EvenementService {
 
     /** Annulation logique : le statut passe à ANNULE, rien n'est supprimé (inscriptions et avis conservés). */
     @Transactional
-    public Evenement annuler(Long evenementId, Long organisateurId) {
+    public Evenement annuler(Integer evenementId, Integer organisateurId) {
         Evenement evenement = trouverPourGestion(evenementId, organisateurId);
         verifierModifiable(evenement);
         evenement.setStatut(StatutEvenement.ANNULE);
@@ -202,7 +202,7 @@ public class EvenementService {
         evenement.setCapaciteMax(form.getCapaciteMax());
     }
 
-    private void promouvoirListeAttente(Long evenementId, long placesLibres) {
+    private void promouvoirListeAttente(Integer evenementId, long placesLibres) {
         if (placesLibres <= 0) {
             return;
         }

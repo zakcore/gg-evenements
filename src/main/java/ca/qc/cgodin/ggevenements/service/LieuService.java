@@ -26,7 +26,7 @@ public class LieuService {
         return lieuRepository.findAllByOrderByNomAsc();
     }
 
-    public Lieu trouver(Long id) {
+    public Lieu trouver(Integer id) {
         return lieuRepository.findById(id)
                 .orElseThrow(() -> new RessourceIntrouvableException("Lieu introuvable."));
     }
@@ -44,7 +44,7 @@ public class LieuService {
 
     /** Refuse proprement la suppression d'un lieu encore utilisé, avant toute erreur d'intégrité SQL. */
     @Transactional
-    public void supprimer(Long id) {
+    public void supprimer(Integer id) {
         Lieu lieu = trouver(id);
         if (evenementRepository.existsByLieuId(id)) {
             throw new RegleAffaireException("Le lieu « " + lieu.getNom()

@@ -643,6 +643,10 @@ tr.is-inactive .person strong { color: var(--muted); }
    --------------------------------------------------------------------- */
 .club-head { display: grid; grid-template-columns: auto 1fr; gap: 24px; align-items: center; margin-bottom: 40px; }
 .club-mark { width: 84px; height: 84px; border-radius: 20px; background: var(--ink); color: #F7F6F3; display: grid; place-items: center; font-family: var(--font-serif); font-style: italic; font-size: 34px; }
+.club-logo { width: 32px; height: 32px; border-radius: 8px; object-fit: cover; background: var(--surface); border: 1px solid var(--border); flex: none; }
+.club-logo--lg { width: 84px; height: 84px; border-radius: 20px; }
+.logo-field { display: flex; align-items: center; gap: 16px; }
+.logo-field .input { flex: 1; min-width: 0; }
 @media (max-width: 560px) { .club-head { grid-template-columns: 1fr; } }
 
 /* ---------------------------------------------------------------------
